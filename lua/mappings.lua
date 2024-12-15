@@ -2,16 +2,16 @@
 vim.g.mapleader = " "
 
 --[[ Normal toggle
-
-    vim.api.nvim_set_keymap("n", "<leader>e", ':NvimTreeToggle<CR>', {
-        noremap = true,
-        silent = true,
-        desc = 'Toggle NvimTree',
-    })
+--
+--     vim.api.nvim_set_keymap("n", "<leader>e", ':NvimTreeToggle<CR>', {
+--         noremap = true,
+--         silent = true,
+--         desc = 'Toggle NvimTree',
+--     })
 --]]
 
 -- toggle/focus NvimTree
-vim.keymap.set("n", "<leader>e", nvimTreeFocusOrToggle)
+-- vim.keymap.set("n", "<leader>e", nvimTreeFocusOrToggle)
 
 -- save the current file
 vim.api.nvim_set_keymap("n", "<leader>w", ":w<CR>", {
@@ -24,11 +24,11 @@ vim.api.nvim_set_keymap("n", "<leader>w", ":w<CR>", {
 vim.api.nvim_set_keymap('n', '<Leader>cf', ':lua CopyCurrentFile()<CR>', { noremap = true, silent = true, desc = "Copy the whole file to system clipboard"})
 
 -- open tab silently 
-vim.keymap.set('n', 'T', open_tab_silent, {
-    noremap = true,
-    silent = true,
-    desc = "Open tab silently",
-})
+-- vim.keymap.set('n', 'T', open_tab_silent, {
+--     noremap = true,
+--     silent = true,
+--     desc = "Open tab silently",
+-- })
 
 -- copy selection to clipboard in visual mode
 vim.api.nvim_set_keymap('v', '<Leader>y', "\"+y", {

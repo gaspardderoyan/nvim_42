@@ -42,22 +42,22 @@ function CopyCurrentFile()
 end
 
 -- Function to open a tab silently
-function open_tab_silent(node)
-  local api = require("nvim-tree.api")
-  api.node.open.tab(node)
-  vim.cmd.tabprev()
-end
+-- function open_tab_silent(node)
+--   local api = require("nvim-tree.api")
+--   api.node.open.tab(node)
+--   vim.cmd.tabprev()
+-- end
 
 -- Focus or toggle nvim-tree
-nvimTreeFocusOrToggle = function ()
-	local nvimTree=require("nvim-tree.api")
-	local currentBuf = vim.api.nvim_get_current_buf()
-	local currentBufFt = vim.api.nvim_get_option_value("filetype", { buf = currentBuf })
-	if currentBufFt == "NvimTree" then
-		nvimTree.tree.toggle()
-	else
-		nvimTree.tree.focus()
-	end
-end
+-- nvimTreeFocusOrToggle = function ()
+-- 	local nvimTree=require("nvim-tree.api")
+-- 	local currentBuf = vim.api.nvim_get_current_buf()
+-- 	local currentBufFt = vim.api.nvim_get_option_value("filetype", { buf = currentBuf })
+-- 	if currentBufFt == "NvimTree" then
+-- 		nvimTree.tree.toggle()
+-- 	else
+-- 		nvimTree.tree.focus()
+-- 	end
+-- end
 
 
