@@ -1,104 +1,90 @@
 -- set leader key
 vim.g.mapleader = " "
 
---[[ Normal toggle
---
---     vim.api.nvim_set_keymap("n", "<leader>e", ':NvimTreeToggle<CR>', {
---         noremap = true,
---         silent = true,
---         desc = 'Toggle NvimTree',
---     })
---]]
-
--- toggle/focus NvimTree
--- vim.keymap.set("n", "<leader>e", nvimTreeFocusOrToggle)
-
--- save the current file
-vim.api.nvim_set_keymap("n", "<leader>w", ":w<CR>", {
-    noremap = true,
-    silent = true,
-    desc = "Save file"
-})
-
--- copy the whole current file to clipboard
-vim.api.nvim_set_keymap('n', '<Leader>cf', ':lua CopyCurrentFile()<CR>', { noremap = true, silent = true, desc = "Copy the whole file to system clipboard"})
-
--- open tab silently 
--- vim.keymap.set('n', 'T', open_tab_silent, {
---     noremap = true,
---     silent = true,
---     desc = "Open tab silently",
--- })
-
--- copy selection to clipboard in visual mode
-vim.api.nvim_set_keymap('v', '<Leader>y', "\"+y", {
-    noremap = true,
-    silent = false,
-    desc = "Copy to clipboard"
-})
+-- RANDOMN --
 
 -- Hide highlights
 vim.api.nvim_set_keymap('n', '<Leader>h', ':noh<CR>', {
-    noremap = true,
     silent = false,
     desc = "Hide highlights"
 })
 
+-- FILES --
+
+vim.keymap.set("n", "<Leader>w", ":w<CR>", {
+    desc = "Save file",
+    silent = false
+})
+
+vim.keymap.set("n", "<Leader>W", ":wall<CR>", {
+    desc = "Save all file",
+    silent = false
+})
+
+vim.keymap.set("n", "<Leader>q", ":q<CR>", {
+    desc = "Quit file",
+    silent = false
+})
+
+-- CLIPBOARD --
+
+-- copy the whole current file to clipboard
+vim.api.nvim_set_keymap('n', '<Leader>cf', ':lua CopyCurrentFile()<CR>', {
+    silent = true,
+    desc = "Copy the whole file to system clipboard"
+})
+
+-- copy selection to clipboard in visual mode
+vim.api.nvim_set_keymap('v', '<Leader>y', "\"+y", {
+    silent = false,
+    desc = "Copy to clipboard"
+})
+
+
 -- KEYMAPS FOR TABS
 vim.api.nvim_set_keymap('n', '<Leader>th', ':tabp<CR>', {
-    noremap = true,
     silent = true,
     desc = "Previous tab"
 })
 vim.api.nvim_set_keymap('n', '<Leader>tl', ':tabn<CR>', {
-    noremap = true,
     silent = true,
     desc = "Next tab"
 })
 vim.api.nvim_set_keymap('n', '<Leader>tn', ':tabnew<CR>', {
-    noremap = true,
     silent = true,
     desc = "Create new tab"
 })
 vim.api.nvim_set_keymap('n', '<Leader>tc', ':tabclose<CR>', {
-    noremap = true,
     silent = true,
     desc = "Close tab"
 })
 
 -- SPLIT SCREEN -- I really hate ctrl key
 vim.api.nvim_set_keymap('n', '<Leader>sq', '<C-w>q', {
-    noremap = true,
     silent = false,
     desc = "Close the current window"
 })
 vim.api.nvim_set_keymap('n', '<Leader>ss', '<C-w>s', {
-    noremap = true,
     silent = false,
     desc = "Split window horizontally"
 })
 vim.api.nvim_set_keymap('n', '<Leader>sv', '<C-w>v', {
-    noremap = true,
     silent = false,
     desc = "Split window vertically"
 })
 vim.api.nvim_set_keymap('n', '<Leader>sh', '<C-w><C-h>', {
-    noremap = true,
     silent = false,
     desc = "Move to left split"
 })
 vim.api.nvim_set_keymap('n', '<Leader>sj', '<C-w><C-j>', {
-    noremap = true,
     silent = false,
     desc = "Move to below split"
 })
 vim.api.nvim_set_keymap('n', '<Leader>sk', '<C-w><C-k>', {
-    noremap = true,
     silent = false,
     desc = "Move to above split"
 })
 vim.api.nvim_set_keymap('n', '<Leader>sl', '<C-w><C-l>', {
-    noremap = true,
     silent = false,
     desc = "Move to right split"
 })
@@ -132,4 +118,28 @@ vim.keymap.set("n", "Q", "<nop>")
 -- TODO find another thing than 's'
 
 -- OIL.NVIM --
-vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Go to Oil file explorer", silent = false})
+vim.keymap.set("n", "<leader>E", "<CMD>Oil<CR>", { desc = "Go to Oil file explorer", silent = false})
+
+-- Define a Lua function to open help in the current window (new buffer).
+local function open_help_in_current_window(topic)
+  -- If no topic is provided, open the help index in a new buffer.
+  if topic == nil or topic == "" then
+    topic = ""
+  end
+
+  -- Create a new empty buffer in the current window.
+  vim.cmd("enew")
+
+  -- Load the requested help topic in this new buffer.
+  vim.cmd("help " .. topic)
+end
+
+-- Create a user command, e.g., :HelpNew <topic>
+vim.api.nvim_create_user_command("HelpNew", function(opts)
+  open_help_in_current_window(opts.args)
+end, {
+  nargs = "?",
+  complete = "help",  -- Offers completion for help topics.
+  desc = "Open Vim help in the current window (new buffer).",
+})
+

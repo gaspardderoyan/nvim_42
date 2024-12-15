@@ -85,3 +85,20 @@ function CopyCurrentFile()
     print("File copied to clipboard!")
 end
 
+-- Function to disable indent guides
+local function disable_indent_for_help()
+    if vim.bo.filetype == 'help' then
+        -- Assuming 'Snacks' is the global table for snacks.nvim
+        if Snacks and Snacks.indent and Snacks.indent.disable then
+            Snacks.indent.disable()
+            vim.opt.colorcolumn = "0"
+            vim.cmd("wincmd R")
+        end
+    end
+end
+
+-- Create an autocommand for help filetypes
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'help',
+    callback = disable_indent_for_help,
+})
