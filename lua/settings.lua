@@ -1,15 +1,18 @@
+-- GENERAL -- 
+-- tab width
 vim.opt.expandtab = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
+vim.opt.autoindent = true
+vim.opt.smartindent = true
 
+-- line numbers
 vim.opt.number = true
 vim.opt.relativenumber = true
 
+-- mouse
 vim.opt.mouse = 'a'
-
-vim.opt.autoindent = true
-vim.opt.smartindent = true
 
 vim.opt.wrap = false
 vim.opt.swapfile = false
@@ -34,30 +37,51 @@ vim.o.autoread = true
 
 vim.opt.scrolloff = 10
 
+-- FOLDS -- 
+-- basic
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldtext = ""
+vim.opt.foldlevel = 99
+
+-- Auto-save and load folds
+vim.api.nvim_create_augroup("AutoSaveFolds", {})
+vim.api.nvim_create_autocmd("BufWinLeave", {
+    group = "AutoSaveFolds",
+    pattern = "*",
+    callback = function(args)
+-- Only proceed if this buffer actually has a name and isn't a special buffer:
+        local buftype = vim.api.nvim_buf_get_option(args.buf, "buftype")
+        local bufname = vim.api.nvim_buf_get_name(args.buf)
+        if buftype == "" and bufname ~= "" then
+            vim.cmd("mkview")
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("BufWinEnter", {
+    group = "AutoSaveFolds",
+    pattern = "*",
+    callback = function(args)
+        local buftype = vim.api.nvim_buf_get_option(args.buf, "buftype")
+        local bufname = vim.api.nvim_buf_get_name(args.buf)
+
+        if buftype == "" and bufname ~= "" then
+            vim.cmd("silent! loadview")
+        end
+    end,
+})
+-- Toggle fold with <Tab>
+vim.keymap.set("n", "<Tab>", "za", { noremap = true, silent = true })
+
+
+
+
+
 function CopyCurrentFile()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local text = table.concat(lines, "\n")
     vim.fn.setreg("+", text)
     print("File copied to clipboard!")
 end
-
--- Function to open a tab silently
--- function open_tab_silent(node)
---   local api = require("nvim-tree.api")
---   api.node.open.tab(node)
---   vim.cmd.tabprev()
--- end
-
--- Focus or toggle nvim-tree
--- nvimTreeFocusOrToggle = function ()
--- 	local nvimTree=require("nvim-tree.api")
--- 	local currentBuf = vim.api.nvim_get_current_buf()
--- 	local currentBufFt = vim.api.nvim_get_option_value("filetype", { buf = currentBuf })
--- 	if currentBufFt == "NvimTree" then
--- 		nvimTree.tree.toggle()
--- 	else
--- 		nvimTree.tree.focus()
--- 	end
--- end
-
 

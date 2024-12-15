@@ -37,13 +37,6 @@ vim.api.nvim_set_keymap('v', '<Leader>y', "\"+y", {
     desc = "Copy to clipboard"
 })
 
--- source the current file
-vim.api.nvim_set_keymap('n', '<Leader>so', ":so %<CR>", {
-    noremap = true,
-    silent = false,
-    desc = "Source the current file"
-})
-
 -- Hide highlights
 vim.api.nvim_set_keymap('n', '<Leader>h', ':noh<CR>', {
     noremap = true,
@@ -110,3 +103,33 @@ vim.api.nvim_set_keymap('n', '<Leader>sl', '<C-w><C-l>', {
     desc = "Move to right split"
 })
 
+-- TODO command to open oil w/ space-e
+
+-- Normal mode 'J' command merges the current line with the next line, but we store the cursor position (mz) and restore it (`z).
+-- This prevents your cursor from jumping unnecessarily after the join.
+vim.keymap.set("n", "J", "mzJ`z")
+
+-- Center the screen after half-page scrolling in normal mode.
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+
+-- When searching forward (n) or backward (N), center the screen afterward.
+vim.keymap.set("n", "n", "nzzzv")
+vim.keymap.set("n", "N", "Nzzzv")
+
+
+-- The "greatest remap ever": When in visual mode (x) and pressing <leader>p, paste over a selection
+-- without overwriting the default register (use "_d to delete and then P).
+vim.keymap.set("x", "<leader>p", [["_dP]])
+
+-- Disable (nop) the 'Q' command in normal mode because it's rarely used (and can conflict with macros).
+vim.keymap.set("n", "Q", "<nop>")
+
+
+-- <leader>s starts a global search-and-replace using the word under cursor.
+-- The placeholder `<Left><Left><Left>` positions the cursor within the command line to adjust the search string if needed.
+-- vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+-- TODO find another thing than 's'
+
+-- OIL.NVIM --
+vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Go to Oil file explorer", silent = false})

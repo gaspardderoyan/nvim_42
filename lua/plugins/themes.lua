@@ -1,20 +1,24 @@
 return {
     {
         "scottmckendry/cyberdream.nvim",
-        lazy = false,
+        lazy = true,
         priority = 1000,
     },
     { 
         "catppuccin/nvim", 
         name = "catppuccin", 
         priority = 1000,
+        config = function()
+            vim.cmd("colorscheme catppuccin-mocha")
+        end
     },
     {
         "rose-pine/neovim", 
         name = "rose-pine",
-        config = function()
-            vim.cmd("colorscheme rose-pine-moon")
-        end
+        lazy = true,
+        -- config = function()
+        --     vim.cmd("colorscheme rose-pine-moon")
+        -- end
     }
 }
 
