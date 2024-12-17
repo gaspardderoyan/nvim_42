@@ -48,53 +48,34 @@ vim.keymap.set('v', '<Leader>y', "\"+y", {
 
 
 -- KEYMAPS FOR TABS
-vim.keymap.set('n', '<Leader>th', ':tabp<CR>', {
-    silent = true,
-    desc = "Previous tab"
-})
-vim.keymap.set('n', '<Leader>tl', ':tabn<CR>', {
-    silent = true,
-    desc = "Next tab"
-})
-vim.keymap.set('n', '<Leader>tn', ':tabnew<CR>', {
-    silent = true,
-    desc = "Create new tab"
-})
-vim.keymap.set('n', '<Leader>tc', ':tabclose<CR>', {
-    silent = true,
-    desc = "Close tab"
-})
+vim.keymap.set('n', '<Leader>th', ':tabprevious<CR>', { silent = true, desc = "Previous tab" })
+vim.keymap.set('n', '<Leader>tl', ':tabnext<CR>',     { silent = true, desc = "Next tab" })
+vim.keymap.set('n', '<Leader>tn', ':tabnew<CR>',      { silent = true, desc = "Create new tab" })
+vim.keymap.set('n', '<Leader>tc', ':tabclose<CR>',    { silent = true, desc = "Close tab" })
 
--- SPLIT SCREEN -- I really hate ctrl key
-vim.keymap.set('n', '<Leader>sq', '<C-w>q', {
-    silent = false,
-    desc = "Close the current window"
-})
-vim.keymap.set('n', '<Leader>ss', '<C-w>s', {
-    silent = false,
-    desc = "Split window horizontally"
-})
-vim.keymap.set('n', '<Leader>sv', '<C-w>v', {
-    silent = false,
-    desc = "Split window vertically"
-})
-vim.keymap.set('n', '<Leader>sh', '<C-w><C-h>', {
-    silent = false,
-    desc = "Move to left split"
-})
-vim.keymap.set('n', '<Leader>sj', '<C-w><C-j>', {
-    silent = false,
-    desc = "Move to below split"
-})
-vim.keymap.set('n', '<Leader>sk', '<C-w><C-k>', {
-    silent = false,
-    desc = "Move to above split"
-})
-vim.keymap.set('n', '<Leader>sl', '<C-w><C-l>', {
-    silent = false,
-    desc = "Move to right split"
-})
+-- SPLIT SCREEN
+vim.keymap.set('n', '<Leader>sq', '<C-w>q',   { silent = false, desc = "Close the current window" })
+vim.keymap.set('n', '<Leader>ss', '<C-w>s',   { silent = false, desc = "Split window horizontally" })
+vim.keymap.set('n', '<Leader>sv', '<C-w>v',   { silent = false, desc = "Split window vertically" })
+vim.keymap.set('n', '<Leader>sh', '<C-w>h',   { silent = false, desc = "Move to left split" })
+vim.keymap.set('n', '<Leader>sj', '<C-w>j',   { silent = false, desc = "Move to below split" })
+vim.keymap.set('n', '<Leader>sk', '<C-w>k',   { silent = false, desc = "Move to above split" })
+vim.keymap.set('n', '<Leader>sl', '<C-w>l',   { silent = false, desc = "Move to right split" })
 
+-- OPTIONAL: Swapping / rotating splits
+vim.keymap.set('n', '<Leader>sx', '<C-w>x',   { silent = false, desc = "Swap with next split" })
+vim.keymap.set('n', '<Leader>sr', '<C-w>r',   { silent = false, desc = "Rotate splits" })
+vim.keymap.set('n', '<Leader>sH', '<C-w>H',   { silent = false, desc = "Move current split to far left" })
+vim.keymap.set('n', '<Leader>sJ', '<C-w>J',   { silent = false, desc = "Move current split to bottom" })
+vim.keymap.set('n', '<Leader>sK', '<C-w>K',   { silent = false, desc = "Move current split to top" })
+vim.keymap.set('n', '<Leader>sL', '<C-w>L',   { silent = false, desc = "Move current split to far right" })
+vim.keymap.set('n', '<Leader>sT', '<C-w>T',   { silent = false, desc = "Move current split to new tab" })
+
+-- BUFFER NAVIGATION
+vim.keymap.set('n', '<Leader>bh', ':bprevious<CR>',   { silent = true, desc = "Previous buffer" })
+vim.keymap.set('n', '<Leader>bl', ':bnext<CR>',       { silent = true, desc = "Next buffer" })
+vim.keymap.set('n', '<Leader>bd', ':bdelete<CR>',     { silent = true, desc = "Delete current buffer" })
+vim.keymap.set('n', '<Leader>be', ':enew<CR>',        { silent = true, desc = "New empty buffer" })
 
 -- Center the screen after half-page scrolling in normal mode.
 vim.keymap.set("n", "<C-d>", "<C-d>zz")

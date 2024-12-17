@@ -18,6 +18,10 @@ vim.opt.wrap = false
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undofile = false
+-- Specify an undo directory (create it manually if needed)
+vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
+
+-- Ensure the directory exists
 
 vim.o.hlsearch = true
 vim.o.incsearch = true
