@@ -72,10 +72,10 @@ vim.keymap.set('n', '<Leader>sL', '<C-w>L',   { silent = false, desc = "Move cur
 vim.keymap.set('n', '<Leader>sT', '<C-w>T',   { silent = false, desc = "Move current split to new tab" })
 
 -- BUFFER NAVIGATION
-vim.keymap.set('n', '<Leader>bh', ':bprevious<CR>',   { silent = true, desc = "Previous buffer" })
-vim.keymap.set('n', '<Leader>bl', ':bnext<CR>',       { silent = true, desc = "Next buffer" })
-vim.keymap.set('n', '<Leader>bd', ':bdelete<CR>',     { silent = true, desc = "Delete current buffer" })
-vim.keymap.set('n', '<Leader>be', ':enew<CR>',        { silent = true, desc = "New empty buffer" })
+vim.keymap.set('n', '<Leader>bh', ':bprevious<CR>',   { silent = false, desc = "Previous buffer" })
+vim.keymap.set('n', '<Leader>bl', ':bnext<CR>',       { silent = false, desc = "Next buffer" })
+vim.keymap.set('n', '<Leader>bd', ':bdelete<CR>',     { silent = false, desc = "Delete current buffer" })
+vim.keymap.set('n', '<Leader>be', ':enew<CR>',        { silent = false, desc = "New empty buffer" })
 
 -- Center the screen after half-page scrolling in normal mode.
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
