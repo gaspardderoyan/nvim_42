@@ -44,7 +44,7 @@ return {
             -- Rename symbol
             vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, { desc = "Rename symbol" })
             -- Show diagnostics for the current line
-            vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Show diagnostics" })
+            vim.keymap.set('n', '<leader>E', vim.diagnostic.open_float, { desc = "Show diagnostics" })
 
             -- Go to the next diagnostic
             vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
