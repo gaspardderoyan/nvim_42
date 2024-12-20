@@ -46,6 +46,18 @@ vim.keymap.set('v', '<Leader>y', "\"+y", {
     desc = "Copy to clipboard"
 })
 
+-- copy register q to clipboard
+vim.keymap.set('n', '<Leader>Q', ':let @+ = @q<CR>', {
+    silent = false,
+    desc = "Copy register 'q' to clipboard"
+})
+
+-- same thing but with lua code
+-- vim.keymap.set('n', '<Leader>Q', function()
+--     vim.fn.setreg('+', vim.fn.getreg('q'))
+-- end, { desc = "Copy register 'q' to clipboard" })
+
+
 
 -- KEYMAPS FOR TABS
 vim.keymap.set('n', '<Leader>th', ':tabprevious<CR>', { silent = true, desc = "Previous tab" })
