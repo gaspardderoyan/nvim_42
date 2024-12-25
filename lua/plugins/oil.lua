@@ -32,8 +32,7 @@ return {
                 prompt_save_on_select_new_entry = false,
                 win_options = { winbar = "%!v:lua.get_oil_winbar()" },
                 keymaps = {
-                    ["p"] = { "actions.parent", mode = "n" },
-                    ["P"] = { "actions.open_cwd", mode = "n" },
+                    -- ["P"] = { "actions.open_cwd", mode = "n" },
                 },
             })
         end,

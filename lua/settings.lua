@@ -17,9 +17,8 @@ vim.opt.mouse = 'a'
 vim.opt.wrap = false
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undofile = false
--- Specify an undo directory (create it manually if needed)
-vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath('config') .. '/undo'
 
 -- Ensure the directory exists
 
@@ -76,7 +75,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     end,
 })
 -- Toggle fold with <Tab>
-vim.keymap.set("n", "<Tab>", "za", { noremap = true, silent = true })
+-- vim.keymap.set("n", "<Tab>", "za", { noremap = true, silent = true })
 
 
 

@@ -63,7 +63,8 @@ vim.keymap.set('n', '<Leader>Q', ':let @+ = @q<CR>', {
 vim.keymap.set('n', '<Leader>th', ':tabprevious<CR>', { silent = true, desc = "Previous tab" })
 vim.keymap.set('n', '<Leader>tl', ':tabnext<CR>',     { silent = true, desc = "Next tab" })
 vim.keymap.set('n', '<Leader>tn', ':tabnew<CR>',      { silent = true, desc = "Create new tab" })
-vim.keymap.set('n', '<Leader>tc', ':tabclose<CR>',    { silent = true, desc = "Close tab" })
+vim.keymap.set('n', '<Leader>tq', ':tabclose<CR>',    { silent = true, desc = "Close tab" })
+vim.keymap.set('n', '<Leader>to', ':tabonly<CR>',    { silent = true, desc = "Close all other tabs" })
 
 -- SPLIT SCREEN
 vim.keymap.set('n', '<Leader>sq', '<C-w>q',   { silent = false, desc = "Close the current window" })
@@ -73,6 +74,13 @@ vim.keymap.set('n', '<Leader>sh', '<C-w>h',   { silent = false, desc = "Move to 
 vim.keymap.set('n', '<Leader>sj', '<C-w>j',   { silent = false, desc = "Move to below split" })
 vim.keymap.set('n', '<Leader>sk', '<C-w>k',   { silent = false, desc = "Move to above split" })
 vim.keymap.set('n', '<Leader>sl', '<C-w>l',   { silent = false, desc = "Move to right split" })
+vim.keymap.set('n', '<Leader>so', '<C-w>o',   { silent = false, desc = "Close other windows" })
+
+-- Quickly resize splits (feel free to pick your own combos)
+vim.keymap.set('n', '<Leader>+', ':resize +2<CR>', { desc = "Increase horizontal split size" })
+vim.keymap.set('n', '<Leader>-', ':resize -2<CR>', { desc = "Decrease horizontal split size" })
+vim.keymap.set('n', '<Leader><', ':vertical resize -2<CR>', { desc = "Decrease vertical split size" })
+vim.keymap.set('n', '<Leader>>', ':vertical resize +2<CR>', { desc = "Increase vertical split size" })
 
 -- OPTIONAL: Swapping / rotating splits
 vim.keymap.set('n', '<Leader>sx', '<C-w>x',   { silent = false, desc = "Swap with next split" })
@@ -86,8 +94,9 @@ vim.keymap.set('n', '<Leader>sT', '<C-w>T',   { silent = false, desc = "Move cur
 -- BUFFER NAVIGATION
 vim.keymap.set('n', '<Leader>bh', ':bprevious<CR>',   { silent = false, desc = "Previous buffer" })
 vim.keymap.set('n', '<Leader>bl', ':bnext<CR>',       { silent = false, desc = "Next buffer" })
-vim.keymap.set('n', '<Leader>bd', ':bdelete<CR>',     { silent = false, desc = "Delete current buffer" })
-vim.keymap.set('n', '<Leader>be', ':enew<CR>',        { silent = false, desc = "New empty buffer" })
+vim.keymap.set('n', '<Leader>bq', ':bdelete<CR>',     { silent = false, desc = "Delete current buffer" })
+vim.keymap.set('n', '<Leader>bn', ':enew<CR>',        { silent = false, desc = "New empty buffer" })
+
 
 -- Center the screen after half-page scrolling in normal mode.
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
@@ -130,3 +139,9 @@ end, {
   desc = "Open Vim help in the current window (new buffer).",
 })
 
+-- EXECUTE FILES --
+-- execute the current file with node
+vim.keymap.set('n', '<leader>ln', ':!node %<CR>', {
+    silent = false,
+    desc = "Execute the current file with node"
+})
