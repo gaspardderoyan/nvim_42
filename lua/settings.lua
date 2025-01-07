@@ -105,3 +105,28 @@ vim.api.nvim_create_autocmd('FileType', {
     pattern = 'help',
     callback = disable_indent_for_help,
 })
+
+-- Indentation settings for web dev
+vim.api.nvim_create_augroup("FileTypeIndentation", {})
+vim.api.nvim_create_autocmd("FileType", {
+    group = "FileTypeIndentation",
+    pattern = { "html", "javascript", "css" },
+    callback = function()
+        vim.opt_local.expandtab = true    -- Use spaces instead of tabs.
+        vim.opt_local.tabstop = 2         -- Number of spaces per tab.
+        vim.opt_local.softtabstop = 2     -- Number of spaces for <Tab> and <BS>.
+        vim.opt_local.shiftwidth = 2      -- Indentation level.
+        vim.opt_local.autoindent = true   -- Copy indent from the current line.
+        vim.opt_local.smartindent = true  -- Automatically inserts indentation.
+    end,
+})
+
+-- HIghlight tabs and trailing spaces for web dev
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "html", "javascript", "css" },
+    callback = function()
+        vim.opt_local.list = true
+        vim.opt_local.listchars = { tab = "»·", trail = "·" }
+    end,
+})
+

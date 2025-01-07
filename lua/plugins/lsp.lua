@@ -64,7 +64,14 @@ return {
         "williamboman/mason-lspconfig.nvim",
         config = function()
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "clangd", "ts_ls" },
+                ensure_installed = {
+                    "lua_ls",
+                    "clangd",
+                    "ts_ls",
+                    "pyright",
+                    "html",
+                    "cssls"
+                },
             })
         end,
     },
@@ -93,6 +100,14 @@ return {
             lspconfig.ts_ls.setup({
                 capabilities = capabilities,
             })
+            lspconfig.html.setup({
+                capabilities = capabilities,
+            })
+            lspconfig.cssls.setup({
+                capabilities = capabilities,
+            })
+            ---@diagnostic disable: missing-fields
+            vim.keymap.set('i', '<C-a>', vim.lsp.buf.signature_help, { desc = "Signature help" }) -- Trigger while typing
             vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "Hover" })
             vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {
                 desc = "Jump to definition"
@@ -129,6 +144,7 @@ return {
             vim.keymap.set('n', '<leader>wl', function()
                 print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
             end, { desc = "List workspace folders" })
+            ---@diagnostic enable: missing-fields
         end
     }
 }
