@@ -67,10 +67,6 @@ return {
                 ensure_installed = {
                     "lua_ls",
                     "clangd",
-                    "ts_ls",
-                    "pyright",
-                    "html",
-                    "cssls"
                 },
             })
         end,
@@ -92,18 +88,6 @@ return {
                 capabilities = capabilities,
             })
             lspconfig.clangd.setup({
-                capabilities = capabilities,
-            })
-            lspconfig.pyright.setup({
-                capabilities = capabilities,
-            })
-            lspconfig.ts_ls.setup({
-                capabilities = capabilities,
-            })
-            lspconfig.html.setup({
-                capabilities = capabilities,
-            })
-            lspconfig.cssls.setup({
                 capabilities = capabilities,
             })
             ---@diagnostic disable: missing-fields
