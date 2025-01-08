@@ -76,6 +76,18 @@ return {
         config = function()
             local capabilities = require('blink.cmp').get_lsp_capabilities()
             local lspconfig = require("lspconfig")
+
+			-- function to toggle LSP diagnostics
+			local toggle_diagnostics = function()
+				if not vim.diagnostic.is_enabled() then
+					vim.diagnostic.enable()
+					vim.notify("LSP Diagnostics Enabled")
+				else
+					vim.diagnostic.enable(false)
+					vim.notify("LSP Diagnostics Disabled")
+				end
+			end
+
             lspconfig.lua_ls.setup({
                 settings = {
                     Lua = {
@@ -90,6 +102,9 @@ return {
             lspconfig.clangd.setup({
                 capabilities = capabilities,
             })
+
+			-- Key Mappings
+			vim.keymap.set('n', '<leader>dt', toggle_diagnostics, { desc = "Toggle Diagnostics Enabled/Disabled" }) -- Option 1: <leader>de (toggle diagnostics)
             ---@diagnostic disable: missing-fields
             vim.keymap.set('i', '<C-a>', vim.lsp.buf.signature_help, { desc = "Signature help" }) -- Trigger while typing
             vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "Hover" })
