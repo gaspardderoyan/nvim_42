@@ -7,10 +7,25 @@ return {
             "nvim-telescope/telescope-fzf-native.nvim",
         },
         config = function()
+			local telescope = require('telescope')
             local builtin = require('telescope.builtin')
+
+			-- Global telescope steup
+			telescope.setup{
+				defaults = {
+					-- file_ignore_patterns = {
+					-- 	 "^[^%.]+$", -- Files with no extension
+					-- }
+				}
+			}
 			vim.keymap.set('n', '<leader>ff', function()
 				builtin.find_files({
-					no_ignore = true
+					find_command = {
+						'fd', '--type', 'f',
+						'--exclude', '*.o',
+						'--exclude', '*.out',
+						'--regex', '^(README|Makefile|.*\\..*)$',
+					}, -- no_ignore = true
 				})
 			end, { desc = "Find files" })
             vim.keymap.set('n', '<leader>fg', builtin.live_grep, {desc = "Live Grep"})

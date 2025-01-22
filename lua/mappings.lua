@@ -66,6 +66,11 @@ vim.keymap.set('n', '<Leader>tn', ':tabnew<CR>',      { silent = true, desc = "C
 vim.keymap.set('n', '<Leader>tq', ':tabclose<CR>',    { silent = true, desc = "Close tab" })
 vim.keymap.set('n', '<Leader>to', ':tabonly<CR>',    { silent = true, desc = "Close all other tabs" })
 
+for i = 1, 9 do
+  vim.keymap.set('n', '<Leader>t' .. i, i .. 'gt', { silent = true, desc = "Go to tab " .. i })
+end
+
+
 -- SPLIT SCREEN
 vim.keymap.set('n', '<Leader>sq', '<C-w>q',   { silent = false, desc = "Close the current window" })
 vim.keymap.set('n', '<Leader>ss', '<C-w>s',   { silent = false, desc = "Split window horizontally" })

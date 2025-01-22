@@ -130,3 +130,5 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
+
+vim.opt.shell = "/usr/bin/zsh"
