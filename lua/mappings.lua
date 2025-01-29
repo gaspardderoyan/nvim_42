@@ -65,6 +65,7 @@ vim.keymap.set('n', '<Leader>tl', ':tabnext<CR>',     { silent = true, desc = "N
 vim.keymap.set('n', '<Leader>tn', ':tabnew<CR>',      { silent = true, desc = "Create new tab" })
 vim.keymap.set('n', '<Leader>tq', ':tabclose<CR>',    { silent = true, desc = "Close tab" })
 vim.keymap.set('n', '<Leader>to', ':tabonly<CR>',    { silent = true, desc = "Close all other tabs" })
+vim.keymap.set('n', '<Leader>ts', ':tab split<CR>',    { silent = true, desc = "Duplicate/split current tab" })
 
 for i = 1, 9 do
   vim.keymap.set('n', '<Leader>t' .. i, i .. 'gt', { silent = true, desc = "Go to tab " .. i })
@@ -80,6 +81,7 @@ vim.keymap.set('n', '<Leader>sj', '<C-w>j',   { silent = false, desc = "Move to 
 vim.keymap.set('n', '<Leader>sk', '<C-w>k',   { silent = false, desc = "Move to above split" })
 vim.keymap.set('n', '<Leader>sl', '<C-w>l',   { silent = false, desc = "Move to right split" })
 vim.keymap.set('n', '<Leader>so', '<C-w>o',   { silent = false, desc = "Close other windows" })
+vim.keymap.set('n', '<leader>s=', '<c-w>=',   { silent = false, desc = "make splits " })
 
 -- Quickly resize splits (feel free to pick your own combos)
 vim.keymap.set('n', '<Leader>+', ':resize +2<CR>', { desc = "Increase horizontal split size" })
@@ -99,9 +101,14 @@ vim.keymap.set('n', '<Leader>sT', '<C-w>T',   { silent = false, desc = "Move cur
 -- BUFFER NAVIGATION
 vim.keymap.set('n', '<Leader>bh', ':bprevious<CR>',   { silent = false, desc = "Previous buffer" })
 vim.keymap.set('n', '<Leader>bl', ':bnext<CR>',       { silent = false, desc = "Next buffer" })
-vim.keymap.set('n', '<Leader>bq', ':bdelete<CR>',     { silent = false, desc = "Delete current buffer" })
+vim.keymap.set('n', '<Leader>bq', ':delete<CR>',     { silent = false, desc = "Delete current buffer" })
 vim.keymap.set('n', '<Leader>bn', ':enew<CR>',        { silent = false, desc = "New empty buffer" })
 
+-- QUICKFIX LIST
+vim.keymap.set('n', '<leader>co', '<cmd>copen<CR>', { silent = false, desc = "Open quickfix list" })
+vim.keymap.set('n', '<leader>cc', '<cmd>cclose<CR>', { silent = false, desc = "Close quickfix list" })
+vim.keymap.set('n', '<leader>cl', '<cmd>cnewer<CR>', { silent = false, desc = "Newer quickfix list" })
+vim.keymap.set('n', '<leader>ch', '<cmd>colder<CR>', { silent = false, desc = "Older quickfix list" })
 
 -- Center the screen after half-page scrolling in normal mode.
 vim.keymap.set("n", "<C-d>", "<C-d>zz")

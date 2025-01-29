@@ -40,6 +40,8 @@ vim.o.autoread = true
 
 vim.opt.scrolloff = 10
 
+vim.opt.grepprg = 'rg --vimgrep -uu --glob "!.git"'
+
 -- FOLDS -- 
 -- basic
 vim.opt.foldmethod = "expr"

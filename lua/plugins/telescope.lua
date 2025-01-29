@@ -1,5 +1,5 @@
 return {
-    "BurntSushi/ripgrep",
+    -- "BurntSushi/ripgrep",
     {
         'nvim-telescope/telescope.nvim',
         dependencies = {

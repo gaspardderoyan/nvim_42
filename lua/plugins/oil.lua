@@ -34,6 +34,9 @@ return {
                 keymaps = {
                     -- ["P"] = { "actions.open_cwd", mode = "n" },
                 },
+				view_options = {
+					show_hidden = true,
+				}
             })
         end,
     },
