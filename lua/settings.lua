@@ -133,4 +133,7 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 
-vim.opt.shell = "/usr/bin/zsh"
+-- Only sets the manual zsh path if on linux/42
+if not vim.uv.os_uname().sysname == 'Darwin' then
+	vim.opt.shell = "/usr/bin/zsh"
+end
