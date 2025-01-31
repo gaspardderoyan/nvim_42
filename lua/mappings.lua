@@ -157,3 +157,9 @@ vim.keymap.set('n', '<leader>ln', ':!node %<CR>', {
     silent = false,
     desc = "Execute the current file with node"
 })
+
+vim.keymap.set(
+	'n', '<leader>S',
+	':!rsync -avz -e "ssh -p 8022" ~/rpi_sshfs/ djivan@djivan.me:/home/djivan/sshfs_sync/<CR>',
+	{ silent = false, desc = "Sync dir with raspi" }
+)
