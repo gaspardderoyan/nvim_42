@@ -169,4 +169,3 @@ vim.diagnostic.config({
 	virtual_text = false, -- no text at the end of line, need to open the hover to find it
 	underline = true, -- underlines where the mistakes is 
 })
-
