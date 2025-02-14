@@ -134,3 +134,37 @@ vim.api.nvim_create_autocmd("FileType", {
 
 
 vim.opt.shell = "/usr/bin/zsh"
+
+-- reloads the file to check for changes eg. switched git branch
+vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = { "*" },
+})
+
+-- function that takes a buffer as arg, otherwise takes the current one
+-- if in the first 15 lines it sees the // NO_LSP comment, disables lsp diags
+local function toggle_lsp_diagnostics(bufnr)
+    bufnr = bufnr or vim.api.nvim_get_current_buf()
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 15, false) -- Check first 15 lines
+    for _, line in ipairs(lines) do
+        if line:match("//%s*NO_LSP") then
+            vim.diagnostic.disable(bufnr)
+            return
+        end
+    end
+    vim.diagnostic.enable(bufnr)
+end
+
+-- autocmd
+vim.api.nvim_create_autocmd({ "BufReadPost", "TextChanged", "InsertLeave" }, {
+    pattern = "*.c",
+    callback = function(args)
+        toggle_lsp_diagnostics(args.buf)
+    end,
+})
+
+vim.diagnostic.config({
+	virtual_text = false, -- no text at the end of line, need to open the hover to find it
+	underline = true, -- underlines where the mistakes is 
+})
+

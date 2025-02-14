@@ -68,6 +68,7 @@ return {
                     "lua_ls",
                     "clangd",
                 },
+				automatic_installation = true
             })
         end,
     },
