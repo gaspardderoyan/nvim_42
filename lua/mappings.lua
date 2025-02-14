@@ -158,8 +158,29 @@ vim.keymap.set('n', '<leader>ln', ':!node %<CR>', {
     desc = "Execute the current file with node"
 })
 
+
+--[[ KEYMAP AND AUTOCOMMAND TO RSYNC WITH RASPBI
 vim.keymap.set(
 	'n', '<leader>S',
 	':!rsync -avz -e "ssh -p 8022" ~/rpi_sshfs/ djivan@djivan.me:/home/djivan/sshfs_sync/<CR>',
 	{ silent = false, desc = "Sync dir with raspi" }
 )
+
+
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '*', -- Apply to all files
+  callback = function()
+    local filepath = vim.fn.expand('%:p') -- Get the absolute path of the current file
+    local target_dir = '/Users/gaspardderoyan/CS/Projects/perso_website_dashboard/'
+
+    if string.sub(filepath, 1, #target_dir) == target_dir then
+      -- Execute your rsync command here
+      local rsync_command = ':!rsync -avz -e "ssh -p 8022" /Users/gaspardderoyan/CS/Projects/perso_website_dashboard/ djivan@djivan.me:/home/djivan/perso_website_dashboard'
+      vim.cmd(rsync_command)
+      print('rsync command executed after saving in target directory.') -- Optional feedback
+    end
+  end,
+})
+]]
+
+

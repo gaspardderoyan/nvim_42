@@ -63,12 +63,17 @@ return {
     {
         "williamboman/mason-lspconfig.nvim",
         config = function()
+			local ensure_installed = {
+				"lua_ls",
+				"clangd",
+				"gopls"
+			}
+			if vim.uv.os_uname().sysname == 'Darwin' then
+				table.insert(ensure_installed, "ts_ls")
+			end
             require("mason-lspconfig").setup({
-                ensure_installed = {
-                    "lua_ls",
-                    "clangd",
-                },
-				automatic_installation = true
+				automatic_installation = true,
+				ensure_installed = ensure_installed,
             })
         end,
     },
@@ -103,6 +108,13 @@ return {
             lspconfig.clangd.setup({
                 capabilities = capabilities,
             })
+            lspconfig.ts_ls.setup({
+                capabilities = capabilities,
+            })
+            lspconfig.gopls.setup({
+                capabilities = capabilities,
+            })
+
 
 			-- Key Mappings
 			vim.keymap.set('n', '<leader>dt', toggle_diagnostics, { desc = "Toggle Diagnostics Enabled/Disabled" }) -- Option 1: <leader>de (toggle diagnostics)

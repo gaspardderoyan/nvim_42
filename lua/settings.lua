@@ -133,7 +133,9 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 
-vim.opt.shell = "/usr/bin/zsh"
+if not vim.uv.os_uname().sysname == 'Darwin' then
+	vim.opt.shell = "/usr/bin/zsh"
+end
 
 -- reloads the file to check for changes eg. switched git branch
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
