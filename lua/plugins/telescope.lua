@@ -24,7 +24,7 @@ return {
 						'fd', '--type', 'f',
 						'--exclude', '*.o',
 						'--exclude', '*.out',
-						'--regex', '^(README|Makefile|.*\\..*)$',
+						'--regex', '^(.*\\..*)$',
 					}, -- no_ignore = true
 				})
 			end, { desc = "Find files" })

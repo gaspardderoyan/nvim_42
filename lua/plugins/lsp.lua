@@ -70,6 +70,7 @@ return {
 			}
 			if vim.uv.os_uname().sysname == 'Darwin' then
 				table.insert(ensure_installed, "ts_ls")
+				table.insert(ensure_installed, "pyright")
 			end
             require("mason-lspconfig").setup({
 				automatic_installation = true,
@@ -112,6 +113,9 @@ return {
                 capabilities = capabilities,
             })
             lspconfig.gopls.setup({
+                capabilities = capabilities,
+            })
+            lspconfig.pyright.setup({
                 capabilities = capabilities,
             })
 
