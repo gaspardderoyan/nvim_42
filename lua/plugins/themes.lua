@@ -29,6 +29,8 @@ return {
 			vim.cmd("highlight Tabline guibg=#111217")
 			vim.cmd("highlight TablineFill guibg=#1C1E26")
 			vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
+			-- Make sign column background match the normal background
+			vim.cmd('highlight SignColumn guibg=NONE ctermbg=NONE')
 			vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#3D4052' })
         end
 
