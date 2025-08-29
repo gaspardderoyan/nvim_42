@@ -44,108 +44,124 @@ return {
             
             -- Custom filtered buffer symbols picker
             vim.keymap.set('n', '<leader>fS', function()
-                local pickers = require "telescope.pickers"
-                local finders = require "telescope.finders"
-                local conf = require("telescope.config").values
-                local actions = require "telescope.actions"
-                local action_state = require "telescope.actions.state"
-                local utils = require "telescope.utils"
-                
-                -- Symbol names to ignore
+                local pickers = require 'telescope.pickers'
+                local finders = require 'telescope.finders'
+                local conf = require('telescope.config').values
+                local actions = require 'telescope.actions'
+                local action_state = require 'telescope.actions.state'
+                local utils = require 'telescope.utils'
+                local entry_display = require 'telescope.pickers.entry_display'
+
+                -- Names to ignore
                 local ignored_symbols = {
-                    ["exec_async"] = true,
-                    ["prep_async"] = true,
-                    ["post_async"] = true
+                    exec_async = true,
+                    prep_async = true,
+                    post_async = true,
                 }
-                
-                -- Symbol types we want to show (LSP symbol kinds)
+
+                -- LSP SymbolKind values to include
                 local allowed_symbol_kinds = {
-                    [6] = true,   -- Method
-                    [12] = true,  -- Function  
                     [5] = true,   -- Class
+                    [6] = true,   -- Method
+                    [12] = true,  -- Function
                 }
-                
+
                 local bufnr = vim.api.nvim_get_current_buf()
-                
-                -- Get LSP document symbols
+
+                -- Collect LSP document symbols
                 local params = { textDocument = vim.lsp.util.make_text_document_params() }
-                local results_lsp, err = vim.lsp.buf_request_sync(
-                    bufnr, "textDocument/documentSymbol", params, 1000
-                )
-                
+                local lsp_results = vim.lsp.buf_request_sync(bufnr, 'textDocument/documentSymbol', params, 1000)
+
                 local symbols = {}
-                if results_lsp then
-                    for _, server_result in pairs(results_lsp) do
+                if lsp_results then
+                    for _, server_result in pairs(lsp_results) do
                         if server_result.result then
-                            local function extract_symbols(syms, parent_name)
-                                for _, symbol in ipairs(syms) do
-                                    -- Check if it's an allowed symbol type
-                                    if allowed_symbol_kinds[symbol.kind] then
-                                        local symbol_name = symbol.name
-                                        -- Skip ignored symbols
-                                        if not ignored_symbols[symbol_name] then
-                                            local kind_name = vim.lsp.protocol.SymbolKind[symbol.kind] or "Unknown"
-                                            local range = symbol.selectionRange or symbol.range
+                            local function collect(syms, parent_name)
+                                for _, s in ipairs(syms) do
+                                    if allowed_symbol_kinds[s.kind] then
+                                        local name = s.name or ""
+                                        if not ignored_symbols[name] then
+                                            local kind_name = vim.lsp.protocol.SymbolKind[s.kind] or 'Unknown'
+                                            local range = s.selectionRange or s.range or (s.location and s.location.range)
                                             table.insert(symbols, {
-                                                name = symbol_name,
+                                                name = name,
                                                 kind = kind_name,
-                                                lnum = range.start.line + 1,
-                                                col = range.start.character + 1,
+                                                lnum = (range and range.start and range.start.line or 0) + 1,
+                                                col = (range and range.start and range.start.character or 0) + 1,
                                                 parent = parent_name,
-                                                bufnr = bufnr
+                                                bufnr = bufnr,
                                             })
                                         end
                                     end
-                                    -- Recursively check children
-                                    if symbol.children then
-                                        extract_symbols(symbol.children, symbol.name)
+                                    if s.children then
+                                        collect(s.children, s.name)
                                     end
                                 end
                             end
-                            extract_symbols(server_result.result)
+                            collect(server_result.result)
                         end
                     end
                 end
-                
-                -- If no LSP symbols, fallback to basic treesitter
+
+                -- Fallback to builtin.treesitter if no symbols found
                 if #symbols == 0 then
-                    builtin.treesitter({
-                        symbols = { "function", "method", "class" }
-                    })
+                    builtin.treesitter({ symbols = { 'function', 'method', 'class' } })
                     return
                 end
-                
+
+                -- Columnar display similar to builtin.treesitter
+                local displayer = entry_display.create({
+                    separator = ' ',
+                    items = {
+                        { width = 10 },          -- kind
+                        { remaining = true },     -- name (with parent)
+                        { width = 8, right_justify = true }, -- line:col
+                        { width = 0 },            -- filename tail
+                    },
+                })
+
+                local function make_display(entry)
+                    return displayer({
+                        { string.format('[%s]', string.lower(entry.kind or '')), 'TelescopeResultsComment' },
+                        entry.display_name,
+                        { string.format('%d:%d', entry.lnum or 0, entry.col or 0), 'TelescopeResultsNumber' },
+                        { utils.path_tail(entry.filename or ''), 'TelescopeResultsIdentifier' },
+                    })
+                end
+
                 pickers.new({}, {
-                    prompt_title = "Buffer Symbols (Filtered)",
-                    finder = finders.new_table {
+                    prompt_title = 'Buffer Symbols (Filtered)',
+                    finder = finders.new_table({
                         results = symbols,
-                        entry_maker = function(entry)
-                            local display_name = entry.parent and 
-                                string.format("%s.%s", entry.parent, entry.name) or 
-                                entry.name
+                        entry_maker = function(e)
+                            local filename = vim.api.nvim_buf_get_name(e.bufnr)
+                            local display_name = e.parent and (e.parent .. '.' .. e.name) or e.name
                             return {
-                                value = entry,
-                                display = string.format("[%s] %s", entry.kind:lower(), display_name),
-                                ordinal = entry.name,
-                                filename = vim.api.nvim_buf_get_name(entry.bufnr),
-                                lnum = entry.lnum,
-                                col = entry.col,
+                                value = e,
+                                display = make_display,
+                                ordinal = table.concat({ e.kind or '', display_name, filename }, ' '),
+                                filename = filename,
+                                display_name = display_name,
+                                kind = e.kind,
+                                lnum = e.lnum,
+                                col = e.col,
                             }
                         end,
-                    },
+                    }),
                     sorter = conf.generic_sorter({}),
-                    attach_mappings = function(prompt_bufnr, map)
+                    previewer = conf.qflist_previewer({}),
+                    attach_mappings = function(prompt_bufnr, _)
                         actions.select_default:replace(function()
                             actions.close(prompt_bufnr)
                             local selection = action_state.get_selected_entry()
                             if selection then
-                                vim.api.nvim_win_set_cursor(0, {selection.lnum, selection.col - 1})
+                                vim.api.nvim_win_set_cursor(0, { selection.lnum, (selection.col or 1) - 1 })
                             end
                         end)
                         return true
                     end,
                 }):find()
-            end, { desc = "Buffer Symbols (Filtered)" })
+            end, { desc = 'Buffer Symbols (Filtered)' })
         end
     }
 }
