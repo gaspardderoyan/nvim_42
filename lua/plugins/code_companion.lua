@@ -1,0 +1,43 @@
+return {
+	-- "olimorris/codecompanion.nvim",
+	-- opts = {
+	-- 	anthropic = function()
+	-- 		return require("codecompanion.adapters").extend("gemini", {
+	-- 			env = {
+	-- 				api_key = "AIzaSyC02L5Wp-SlJYGoLUnHDrerJjXLW6a5I_w",
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- 	strategies = {
+	-- 		chat = {
+	-- 			adapter = {
+	-- 				name = "gemini",
+	-- 				model = "gemini-2.5-flash",
+	-- 			},
+	-- 		},
+	-- 	},
+	-- 	display = {
+	-- 		action_palette = {
+	-- 			provider = "snacks",
+	-- 		},
+	-- 	},
+	-- 	opts = {
+	-- 		-- Set debug loggin
+	-- 		log_level = "DEBUG",
+	-- 	},
+	-- 	extensions = {
+	-- 		mcphub = {
+	-- 			callback = "mcphub.extensions.codecompanion",
+	-- 			opts = {
+	-- 				show_result_in_chat = true, -- Show mcp tool results in chat
+	-- 				make_vars = true, -- Convert resources to #variables
+	-- 				make_slash_commands = true, -- Add prompts as /slash commands
+	-- 			},
+	-- 		},
+	-- 	},
+	-- },
+	-- dependencies = {
+	-- 	"nvim-lua/plenary.nvim",
+	-- 	"nvim-treesitter/nvim-treesitter",
+	-- },
+}
