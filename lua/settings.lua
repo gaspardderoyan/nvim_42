@@ -121,7 +121,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGai
 
 -- function that takes a buffer as arg, otherwise takes the current one
 -- if in the first 15 lines it sees the // NO_LSP comment, disables lsp diags
-local function toggle_lsp_diagnostics(bufnr)
+local function check_no_lsp_comment(bufnr)
 	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 15, false) -- Check first 15 lines
 	for _, line in ipairs(lines) do
@@ -133,11 +133,19 @@ local function toggle_lsp_diagnostics(bufnr)
 	vim.diagnostic.enable(true, { buf = bufnr })
 end
 
+-- function to actually toggle lsp diagnostics on/off
+function toggle_lsp_diagnostics(bufnr)
+	bufnr = bufnr or vim.api.nvim_get_current_buf()
+	local enabled = vim.diagnostic.is_enabled({ buf = bufnr })
+	vim.diagnostic.enable(not enabled, { buf = bufnr })
+	print("LSP diagnostics " .. (enabled and "disabled" or "enabled"))
+end
+
 -- autocmd
 vim.api.nvim_create_autocmd({ "BufReadPost", "TextChanged", "InsertLeave" }, {
 	pattern = "*.c",
 	callback = function(args)
-		toggle_lsp_diagnostics(args.buf)
+		check_no_lsp_comment(args.buf)
 	end,
 })
 

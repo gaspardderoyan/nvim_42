@@ -186,7 +186,12 @@ vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, si
 vim.cmd([[cab cc CodeCompanion]])
 
 vim.keymap.set("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float()<CR>", { noremap = true, silent = false })
+vim.keymap.set("n", "<leader>lt", ":lua toggle_lsp_diagnostics()<CR>", {
+	silent = false,
+	desc = "Toggle LSP diagnostics for current buffer"
+})
 
+-- Copy whole files with lsp diagnostics
 vim.keymap.set("n", "<leader>cF", function()
 	-- Relative path from cwd
 	local relative = vim.fn.expand("%:.")
@@ -215,3 +220,56 @@ vim.keymap.set("n", "<leader>cF", function()
 	print("Copied file & LSP to clipboard")
 end, { noremap = true, silent = true })
 
+-- Visual-mode: copy selection with ONLY LSP ERRORs + raw context, in a simple schema
+vim.keymap.set("x", "<leader>cF", function()
+	local bufnr = 0
+	local file = vim.fn.expand("%:.")
+
+	-- normalize visual range
+	local vstart = vim.fn.getpos("v")
+	local vend = vim.fn.getpos(".")
+	local sline, scol = vstart[2], vstart[3]
+	local eline, ecol = vend[2], vend[3]
+	if (eline < sline) or (eline == sline and ecol < scol) then
+		sline, eline, scol, ecol = eline, sline, ecol, scol
+	end
+
+	-- zero-based indices for API
+	local sidx, eidx = sline - 1, eline - 1
+
+	-- grab raw context (no line numbers)
+	local context_lines = vim.api.nvim_buf_get_lines(bufnr, sidx, eidx + 1, false)
+	local context = table.concat(context_lines, "\n")
+
+	-- collect only ERROR diagnostics within the range
+	local errs = {}
+	for lnum = sidx, eidx do
+		local diags = vim.diagnostic.get(bufnr, { lnum = lnum, severity = vim.diagnostic.severity.ERROR })
+		for _, d in ipairs(diags) do
+			local msg = (d.message or ""):gsub("\n", " ")
+			table.insert(errs, { line = lnum + 1, msg = msg })
+		end
+	end
+	table.sort(errs, function(a, b)
+		return a.line < b.line
+	end)
+
+	-- build output in requested schema
+	local out = {}
+	table.insert(out, string.format("%s  (lines %d–%d)", file, sline, eline))
+	table.insert(out, "LSP errors:")
+	if #errs == 0 then
+		table.insert(out, "- none")
+	else
+		for _, e in ipairs(errs) do
+			table.insert(out, string.format("- line %d: %s", e.line, e.msg))
+		end
+	end
+	table.insert(out, "")
+	table.insert(out, "Context:")
+	table.insert(out, context)
+
+	local final = table.concat(out, "\n")
+	vim.fn.setreg("+", final)
+	print("Copied selection (errors + context) to clipboard")
+end, { noremap = true, silent = true, desc = "Copy selection errors + context (schema)" })
