@@ -159,8 +159,8 @@ vim.api.nvim_create_autocmd("FileType", {
 	pattern = "markdown",
 	callback = function()
 		vim.wo.wrap = true
-		vim.wo.number = false
-		vim.wo.relativenumber = false
+		-- vim.wo.number = false
+		-- vim.wo.relativenumber = false
 		vim.wo.linebreak = true
 		vim.keymap.set("n", "j", "gj", { buffer = true, silent = true })
 		vim.keymap.set("n", "k", "gk", { buffer = true, silent = true })
@@ -174,3 +174,18 @@ vim.diagnostic.config({
 })
 
 vim.opt.conceallevel = 1 -- or 2, depending on your preference  - for obsidian nvim
+
+-- Open terminal in insert mode automatically
+vim.api.nvim_create_autocmd("TermOpen", {
+	pattern = "*",
+	callback = function()
+		vim.cmd("startinsert")
+		-- Hide line numbers in terminal
+	end,
+})
+
+-- Easier window navigation from terminal
+vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]])
+vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]])
+vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]])
+vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]])
