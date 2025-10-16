@@ -35,6 +35,11 @@ vim.keymap.set("n", "<Leader>q", ":q<CR>", {
 	silent = false,
 })
 
+vim.keymap.set("n", "<Leader>Q", ":xall!<CR>", {
+	desc = "Save & Quit all files",
+	silent = false,
+})
+
 -- CLIPBOARD --
 
 -- copy the whole current file to clipboard
@@ -50,7 +55,7 @@ vim.keymap.set("v", "<Leader>y", '"+y', {
 })
 
 -- copy register q to clipboard
-vim.keymap.set("n", "<Leader>Q", ":let @+ = @q<CR>", {
+vim.keymap.set("n", "<Leader>cq", ":let @+ = @q<CR>", {
 	silent = false,
 	desc = "Copy register 'q' to clipboard",
 })
