@@ -178,17 +178,17 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 ]]
 
-vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<Leader>a", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
-vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-
--- Expand 'cc' into 'CodeCompanion' in the command line
-vim.cmd([[cab cc CodeCompanion]])
+-- vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+-- vim.keymap.set({ "n", "v" }, "<Leader>a", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+-- vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+--
+-- -- Expand 'cc' into 'CodeCompanion' in the command line
+-- vim.cmd([[cab cc CodeCompanion]])
 
 vim.keymap.set("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float()<CR>", { noremap = true, silent = false })
 vim.keymap.set("n", "<leader>lt", ":lua toggle_lsp_diagnostics()<CR>", {
 	silent = false,
-	desc = "Toggle LSP diagnostics for current buffer"
+	desc = "Toggle LSP diagnostics for current buffer",
 })
 
 -- Copy whole files with lsp diagnostics
