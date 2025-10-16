@@ -1,33 +1,42 @@
 return {
 	{
 		"folke/sidekick.nvim",
-		opts = {
-			nes = {
-				enabled = true,
-				debounce = 100,
-			},
-			cli = {
-				mux = {
+		opts = function()
+			local split_ratio = 0.4
+			return {
+				nes = {
 					enabled = true,
-					backend = "zellij",
-					create = "terminal", -- or "window" for tmux tabs
-					focus = true,
+					debounce = 100,
 				},
-				win = {
-					layout = "right",
+				cli = {
+					mux = {
+						enabled = true,
+						backend = "zellij",
+						create = "terminal", -- or "window" for tmux tabs
+						focus = true,
+						split = {
+							size = split_ratio,
+						},
+					},
+					win = {
+						layout = "right",
+						split = {
+							width = math.floor(vim.o.columns * split_ratio),
+						},
+					},
+					tools = {
+						claude = { cmd = { "claude" } },
+					},
 				},
-				tools = {
-					claude = { cmd = { "claude" } },
+				copilot = {
+					status = {
+						enabled = true,
+						level = vim.log.levels.WARN,
+					},
 				},
-			},
-			copilot = {
-				status = {
-					enabled = true,
-					level = vim.log.levels.WARN,
-				},
-			},
-			debug = true,
-		},
+				debug = true,
+			}
+		end,
 		-- stylua: ignore
 		keys = {
 			{
