@@ -1,4 +1,4 @@
- return {
+return {
 	{
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
@@ -15,18 +15,12 @@
 				harpoon.ui:toggle_quick_menu(harpoon:list())
 			end, { desc = "Toggle harpoon quick menu", silent = false })
 
-			-- vim.keymap.set("n", "<C-i>", function()
-			-- 	harpoon:list():select(1)
-			-- end, { desc = "Harpoon select file 1", silent = false })
-			-- vim.keymap.set("n", "<C-o>", function()
-			-- 	harpoon:list():select(2)
-			-- end, { desc = "Harpoon select file 2", silent = false })
-			-- vim.keymap.set("n", "<C-p>", function()
-			-- 	harpoon:list():select(3)
-			-- end, { desc = "Harpoon select file 3", silent = false })
-			-- vim.keymap.set("n", "<C-[>", function()
-			-- 	harpoon:list():select(4)
-			-- end, { desc = "Harpoon select file 4", silent = false })
+			-- Set <space>1..<space>5 be my shortcuts to moving to the files
+			for _, idx in ipairs({ 1, 2, 3, 4, 5 }) do
+				vim.keymap.set("n", string.format("<space>%d", idx), function()
+					harpoon:list():select(idx)
+				end)
+			end
 
 			-- Toggle previous & next buffers stored within Harpoon list
 			vim.keymap.set("n", "<C-S-P>", function()
