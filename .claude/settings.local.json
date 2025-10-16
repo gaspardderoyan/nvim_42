@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(chmod:*)",
+      "WebFetch(domain:cmp.saghen.dev)"
     ],
     "deny": [],
     "ask": []

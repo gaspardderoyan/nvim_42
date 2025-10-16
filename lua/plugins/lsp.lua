@@ -387,6 +387,16 @@ return {
 
 				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
 				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+				["<Tab>"] = {
+					"snippet_forward",
+					function() -- sidekick next edit suggestion
+						return require("sidekick").nes_jump_or_apply()
+					end,
+					-- function() -- if you are using Neovim's native inline completions
+					-- 	return vim.lsp.inline_completion.get()
+					-- end,
+					"fallback",
+				},
 			},
 
 			appearance = {
@@ -398,7 +408,7 @@ return {
 			completion = {
 				-- By default, you may press `<c-space>` to show the documentation.
 				-- Optionally, set `auto_show = true` to show the documentation after a delay.
-				documentation = { auto_show = false, auto_show_delay_ms = 500 },
+				documentation = { auto_show = true, auto_show_delay_ms = 500 },
 			},
 
 			sources = {
@@ -407,7 +417,7 @@ return {
 					lazydev = { module = "lazydev.integrations.blink", score_offset = 100 },
 				},
 				per_filetype = {
-					codecompanion = { "codecompanion" },
+					-- codecompanion = { "codecompanion" },
 				},
 			},
 
