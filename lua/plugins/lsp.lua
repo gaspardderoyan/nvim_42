@@ -355,7 +355,7 @@ return {
 		opts = {
 			keymap = {
 				preset = "default",
-				["&lt;Tab&gt;"] = {
+				["<Tab>"] = {
 					"select_next",
 					function()
 						-- Sidekick NES
@@ -373,10 +373,11 @@ return {
 					end,
 					"fallback",
 				},
-				["&lt;S-Tab&gt;"] = {
+				["<S-Tab>"] = {
 					"select_prev",
 					"fallback",
 				},
+				["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
 			},
 
 			appearance = {
@@ -549,3 +550,4 @@ return {
 	-- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
 	-- you can continue same window with `<space>sr` which resumes last telescope search
 }
+
