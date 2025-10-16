@@ -1,30 +1,48 @@
 return {
-	{ "github/copilot.vim" },
 	{
 		"folke/sidekick.nvim",
 		opts = {
+			nes = {
+				enabled = true,
+				debounce = 100,
+			},
 			cli = {
 				mux = {
 					enabled = true,
 					backend = "zellij",
-					create = "split", -- or "window" for tmux tabs
+					create = "terminal", -- or "window" for tmux tabs
 					focus = true,
 				},
+				win = {
+					layout = "right",
+				},
+				tools = {
+					claude = { cmd = { "claude" } },
+				},
 			},
+			copilot = {
+				status = {
+					enabled = true,
+					level = vim.log.levels.WARN,
+				},
+			},
+			debug = true,
 		},
 		-- stylua: ignore
 		keys = {
-			-- {
-			-- 	"<tab>",
-			-- 	function()
-			-- 		-- if there is a next edit, jump to it, otherwise apply it if any
-			-- 		if not require("sidekick").nes_jump_or_apply() then
-			-- 			return "<Tab>" -- fallback to normal tab
-			-- 		end
-			-- 	end,
-			-- 	expr = true,
-			-- 	desc = "Goto/Apply Next Edit Suggestion",
-			-- },
+			{
+				"<tab>",
+				function()
+					-- if there is a next edit, jump to it, otherwise apply it if any
+					if require("sidekick").nes_jump_or_apply() then
+						return "" -- handled
+					end
+					return "<Tab>" -- fallback to normal tab
+				end,
+				expr = true,
+				mode = { "i", "n" },
+				desc = "Goto/Apply Next Edit Suggestion",
+			},
 			{
 				"<leader>aa",
 				function() require("sidekick.cli").toggle() end,
@@ -65,13 +83,14 @@ return {
 			{
 				"<leader>aC",
 				function() require("sidekick.cli").toggle({ name = "claude", focus = true }) end,
-				desc = "Sidekick Toggle Claude",
+				desc = "Sidekick Show Claude",
 			},
 			{
 				"<leader>aO",
 				function() require("sidekick.cli").toggle({ name = "opencode", focus = true }) end,
 				desc = "Sidekick Toggle OpenCode",
 			},
+
 		},
 	},
 }
