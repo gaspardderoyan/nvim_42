@@ -47,7 +47,7 @@
             vim.keymap.set('n', '<leader>fc', builtin.git_commits , {desc = "Git Commits"})
             vim.keymap.set('n', '<leader>fC', builtin.git_bcommits , {desc = "Git Buffer Commits"})
             vim.keymap.set('n', '<leader>fR', builtin.lsp_references , {desc = "LSP References"})
-            vim.keymap.set('n', '<leader>fm', builtin.marks , {desc = "Marks"})
+            vim.keymap.set('n', '<leader>fM', builtin.marks , {desc = "Marks"})
             vim.keymap.set('n', '<leader>fG', builtin.registers , {desc = "Registers"})
             vim.keymap.set('n', '<leader>fv', function()
                 builtin.find_files { cwd = vim.fn.stdpath("config") }
