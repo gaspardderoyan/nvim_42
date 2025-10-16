@@ -273,3 +273,13 @@ vim.keymap.set("x", "<leader>cF", function()
 	vim.fn.setreg("+", final)
 	print("Copied selection (errors + context) to clipboard")
 end, { noremap = true, silent = true, desc = "Copy selection errors + context (schema)" })
+
+-- Function to open the current file (if it's .md or .txt) in 'Typora'
+vim.keymap.set("n", "<leader>op", function()
+	local filename = vim.api.nvim_buf_get_name(0)
+	if filename ~= "" then
+		vim.fn.system("aerospace workspace 4")
+		vim.fn.system("open -a Typora " .. filename)
+	end
+	print(filename)
+end, { noremap = true, silent = false, desc = "Open current file in Typora" })
