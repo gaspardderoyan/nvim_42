@@ -91,9 +91,9 @@ vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "html", "javascript", "css" },
 	callback = function()
 		vim.opt_local.expandtab = true -- Use spaces instead of tabs.
-		vim.opt_local.tabstop = 2 -- Number of spaces per tab.
-		vim.opt_local.softtabstop = 2 -- Number of spaces for <Tab> and <BS>.
-		vim.opt_local.shiftwidth = 2 -- Indentation level.
+		vim.opt_local.tabstop = 4 -- Number of spaces per tab.
+		vim.opt_local.softtabstop = 4 -- Number of spaces for <Tab> and <BS>.
+		vim.opt_local.shiftwidth = 4 -- Indentation level.
 		vim.opt_local.autoindent = true -- Copy indent from the current line.
 		vim.opt_local.smartindent = true -- Automatically inserts indentation.
 	end,
