@@ -4,6 +4,7 @@ return {
 	lazy = false,
 	---@type snacks.Config
 	opts = {
+		input = { enabled = true },
 		scratch = { enabled = true },
 		dashboard = {
 			enabled = true,
@@ -118,6 +119,7 @@ return {
 		statuscolumn = { enabled = true },
 		words = { enabled = true },
 		toggle = { enabled = true, map = vim.keymap.set, which_key = true },
+		lazygit = { enabled = true },
 	},
 	keys = {
 		{
@@ -133,6 +135,27 @@ return {
 				Snacks.scratch.select()
 			end,
 			desc = "Select Scratch Buffer",
+		},
+		{
+			"<leader>gg",
+			function()
+				Snacks.lazygit()
+			end,
+			desc = "Lazygit",
+		},
+		{
+			"<leader>gl",
+			function()
+				Snacks.lazygit.log()
+			end,
+			desc = "Lazygit Log",
+		},
+		{
+			"<leader>gf",
+			function()
+				Snacks.lazygit.log_file()
+			end,
+			desc = "Lazygit File History",
 		},
 	},
 }
