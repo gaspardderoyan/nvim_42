@@ -4,7 +4,8 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(chmod:*)",
-      "WebFetch(domain:cmp.saghen.dev)"
+      "WebFetch(domain:cmp.saghen.dev)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ],
     "deny": [],
     "ask": []

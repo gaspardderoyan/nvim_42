@@ -125,7 +125,7 @@ return {
 		{
 			"<leader>.",
 			function()
-				Snacks.scratch()
+				Snacks.scratch({ type = "markdown" })
 			end,
 			desc = "Toggle Scratch Buffer",
 		},

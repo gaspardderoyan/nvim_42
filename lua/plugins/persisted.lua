@@ -1,7 +1,42 @@
 return {
-	"olimorris/persisted.nvim",
-	event = "BufReadPre", -- Ensure the plugin loads only when a buffer has been loaded
-	opts = {
-		-- Your config goes here ...
-	},
+	-- "olimorris/persisted.nvim",
+	-- lazy = false, -- Load immediately
+	-- opts = {
+	-- 	autoload = false, -- Disable autoload on startup
+	-- 	autostart = true, -- Automatically start session when Neovim is opened
+	-- },
+	-- config = function(_, opts)
+	-- 	local persisted = require("persisted")
+	-- 	persisted.setup(opts)
+	--
+	-- 	-- check for --continue-session flag on VimEnter with detailed debug
+	-- 	vim.api.nvim_create_autocmd("VimEnter", {
+	-- 		callback = function()
+	-- 			vim.defer_fn(function()
+	-- 				print("Current CWD:", vim.fn.getcwd())
+	-- 				local args = vim.fn.argv()
+	-- 				local continue_flag = false
+	-- 				for _, arg in ipairs(args) do
+	-- 					if arg == "--continue-session" then
+	-- 						continue_flag = true
+	-- 						break
+	-- 					end
+	-- 				end
+	-- 				print("Continue flag detected:", continue_flag)
+	-- 				if continue_flag then
+	-- 					print("Attempting to load session...")
+	-- 					local persisted = require("persisted")
+	-- 					local session_path = persisted.get_session_file()
+	-- 					print("Expected session path:", session_path)
+	-- 					local ok, err = pcall(persisted.autoload, { force = true })
+	-- 					if ok then
+	-- 						print("Session loaded successfully")
+	-- 					else
+	-- 						print("Session load failed:", vim.inspect(err))
+	-- 					end
+	-- 				end
+	-- 			end, 100)
+	-- 		end,
+	-- 	})
+	-- end,
 }
