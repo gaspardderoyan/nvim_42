@@ -9,6 +9,8 @@ return {
 			library = {
 				-- load luvit types when the `vim.uv` word is found
 				{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
+				-- load snacks.nvim types when the `Snacks` word is found
+				{ path = "snacks.nvim", words = { "Snacks" } },
 			},
 		},
 	},
