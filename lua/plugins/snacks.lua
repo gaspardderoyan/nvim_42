@@ -5,7 +5,110 @@ return {
 	---@type snacks.Config
 	opts = {
 		scratch = { enabled = true },
-		dashboard = { enabled = true },
+		dashboard = {
+			enabled = true,
+			preset = {
+				keys = {
+					{
+						icon = "󰈞 ",
+						key = "f",
+						desc = "Find Files",
+						action = function()
+							require("telescope.builtin").find_files({
+								find_command = {
+									"fd",
+									"--type",
+									"f",
+									"--exclude",
+									"*.o",
+									"--exclude",
+									"*.out",
+									"--regex",
+									"^(.*\\..*)$",
+								},
+							})
+						end,
+					},
+					{
+						icon = "󰍉 ",
+						key = "g",
+						desc = "Live Grep",
+						action = function()
+							require("telescope.builtin").live_grep()
+						end,
+					},
+					{
+						icon = "󰈙 ",
+						key = "b",
+						desc = "Buffers",
+						action = function()
+							require("telescope.builtin").buffers()
+						end,
+					},
+					{
+						icon = "󰋚 ",
+						key = "r",
+						desc = "Recent Files",
+						action = function()
+							require("telescope.builtin").oldfiles()
+						end,
+					},
+					{
+						icon = "󰋖 ",
+						key = "h",
+						desc = "Help Tags",
+						action = function()
+							require("telescope.builtin").help_tags()
+						end,
+					},
+					{
+						icon = " ",
+						key = "s",
+						desc = "Git Branches",
+						action = function()
+							require("telescope.builtin").git_branches()
+						end,
+					},
+					{
+						icon = "󰜘 ",
+						key = "c",
+						desc = "Git Commits",
+						action = function()
+							require("telescope.builtin").git_commits()
+						end,
+					},
+					{
+						icon = "󰈚 ",
+						key = "m",
+						desc = "Marks",
+						action = function()
+							require("telescope.builtin").marks()
+						end,
+					},
+					{
+						icon = "󰏗 ",
+						key = "R",
+						desc = "Registers",
+						action = function()
+							require("telescope.builtin").registers()
+						end,
+					},
+					{
+						icon = "󰈚 ",
+						key = "v",
+						desc = "Nvim Config",
+						action = function()
+							require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+						end,
+					},
+				},
+			},
+			sections = {
+				{ section = "header" },
+				{ section = "keys", gap = 1, padding = 1 },
+				{ section = "startup" },
+			},
+		},
 		explorer = { enabled = true },
 		indent = { enabled = true },
 		picker = { enabled = true },
