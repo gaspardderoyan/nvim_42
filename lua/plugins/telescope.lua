@@ -1,4 +1,4 @@
-return {
+ return {
     -- "BurntSushi/ripgrep",
     {
         'nvim-telescope/telescope.nvim',
@@ -23,6 +23,12 @@ return {
 				}
 			}
 			telescope.load_extension('doodle')
+
+			-- NEW: Keymap for fuzzy mapping search (e.g., search "harpoon" to find all Harpoon keys)
+			vim.keymap.set("n", "<leader>fm", function()
+				require("telescope.builtin").keymaps()
+			end, { desc = "Find keymaps" })
+
 			vim.keymap.set('n', '<leader>ff', function()
 				builtin.find_files({
 					find_command = {

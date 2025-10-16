@@ -1,4 +1,4 @@
-return {
+ return {
 	{
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
@@ -35,6 +35,14 @@ return {
 			vim.keymap.set("n", "<C-S-N>", function()
 				harpoon:list():next()
 			end, { desc = "Harpoon next buffer", silent = false })
+
+			-- NEW: Integrate with Telescope for Harpoon marks
+			require("telescope").load_extension("harpoon")
+
+			-- NEW: Keymap for Harpoon marks in Telescope
+			vim.keymap.set("n", "<leader>fh", function()
+				require("telescope").extensions.harpoon.marks()
+			end, { desc = "Harpoon marks" })
 		end,
 	},
 }
