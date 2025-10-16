@@ -5,6 +5,7 @@ return {
         dependencies = {
             'nvim-lua/plenary.nvim',
             "nvim-telescope/telescope-fzf-native.nvim",
+            "apdot/doodle", -- For doodle extension
         },
         config = function()
 			local telescope = require('telescope')
@@ -16,8 +17,12 @@ return {
 					-- file_ignore_patterns = {
 					-- 	 "^[^%.]+$", -- Files with no extension
 					-- }
+				},
+				extensions = {
+					doodle = {}
 				}
 			}
+			telescope.load_extension('doodle')
 			vim.keymap.set('n', '<leader>ff', function()
 				builtin.find_files({
 					find_command = {
@@ -41,6 +46,19 @@ return {
             vim.keymap.set('n', '<leader>fv', function()
                 builtin.find_files { cwd = vim.fn.stdpath("config") }
             end, { desc = "Nvim Config" })
+
+            -- Doodle Telescope extensions
+            vim.keymap.set("n", "<space>dn", function()
+                telescope.extensions.doodle.find_notes()
+            end, { desc = "Doodle Find Notes" })
+
+            vim.keymap.set("n", "<space>dff", function()
+                telescope.extensions.doodle.find_files()
+            end, { desc = "Doodle Find Files" })
+
+            vim.keymap.set("n", "<space>dt", function()
+                telescope.extensions.doodle.find_templates()
+            end, { desc = "Doodle Find Templates" })
             
             -- Custom filtered buffer symbols picker
             vim.keymap.set('n', '<leader>fS', function()

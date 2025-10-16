@@ -1,0 +1,78 @@
+return {
+	-- "apdot/doodle",
+	-- dependencies = {
+	-- 	"kkharji/sqlite.lua",
+	-- 	"nvim-lua/plenary.nvim",
+	-- 	"nvim-telescope/telescope.nvim",
+	-- },
+	-- config = function()
+	-- 	require("doodle"):setup({
+	-- 		settings = {
+	-- 			-- Set git_repo to the absolute path of your private notes repository for sync functionality
+	-- 			git_repo = "/Users/gaspardderoyan/CS/Projects/my-doodle-repo",
+	-- 			auto_save = true,
+	-- 			sync = true,
+	-- 			hide_hint = false,
+	-- 			project = function()
+	-- 				return "default"
+	-- 			end,
+	-- 			branch = function()
+	-- 				return "main"
+	-- 			end,
+	-- 			global = function()
+	-- 				return ""
+	-- 			end,
+	-- 			finder_height_factor = 0.8,
+	-- 			finder_width_factor = 0.8,
+	-- 		},
+	-- 		operations = {
+	-- 			encode = function(data)
+	-- 				return data
+	-- 			end,
+	-- 			decode = function(data)
+	-- 				return data
+	-- 			end,
+	-- 			snapshot_condition = function()
+	-- 				return true
+	-- 			end,
+	-- 		},
+	-- 	})
+	-- end,
+	-- keys = {
+	-- 	{
+	-- 		"<space>df",
+	-- 		function()
+	-- 			require("doodle"):toggle_finder()
+	-- 		end,
+	-- 		desc = "Doodle Finder",
+	-- 	},
+	-- 	{
+	-- 		"<space>ds",
+	-- 		function()
+	-- 			require("doodle"):sync()
+	-- 		end,
+	-- 		desc = "Doodle Sync",
+	-- 	},
+	-- 	{
+	-- 		"<space>dl",
+	-- 		function()
+	-- 			require("doodle"):toggle_links()
+	-- 		end,
+	-- 		desc = "Doodle Links",
+	-- 	},
+	-- 	{
+	-- 		"<space>dd",
+	-- 		function()
+	-- 			require("doodle"):toggle_finder()
+	-- 		end,
+	-- 		desc = "Toggle Doodle Finder",
+	-- 	},
+	-- 	{
+	-- 		"<space>dh",
+	-- 		function()
+	-- 			require("doodle"):here()
+	-- 		end,
+	-- 		desc = "Toggle Doodle Here",
+	-- 	},
+	-- },
+}
