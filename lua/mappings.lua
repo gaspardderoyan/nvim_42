@@ -35,7 +35,29 @@ vim.keymap.set("n", "<Leader>q", ":q<CR>", {
 	silent = false,
 })
 
-vim.keymap.set("n", "<Leader>Q", ":xall!<CR>", {
+vim.keymap.set("n", "<Leader>Q", function()
+	-- Save all modified buffers first
+	vim.cmd("wall")
+
+	-- Close any active sidekick CLI sessions
+	local ok, sidekick = pcall(require, "sidekick.cli")
+	if ok then
+		sidekick.close()
+	end
+
+	-- Force close all terminal buffers with running jobs
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_valid(buf) then
+			local buftype = vim.api.nvim_get_option_value("buftype", { buf = buf })
+			if buftype == "terminal" then
+				vim.api.nvim_buf_delete(buf, { force = true })
+			end
+		end
+	end
+
+	-- Now quit all windows
+	vim.cmd("qall!")
+end, {
 	desc = "Save & Quit all files",
 	silent = false,
 })
