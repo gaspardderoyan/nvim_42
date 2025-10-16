@@ -72,12 +72,6 @@ return {
 				function() require("sidekick.cli").toggle({ name = "opencode", focus = true }) end,
 				desc = "Sidekick Toggle OpenCode",
 			},
-			{
-				"<leader>aq",
-				function() require("sidekick.cli").close() end,
-				desc = "Sidekick Close",
-				mode = { "t" }
-			}
 		},
 	},
 }
