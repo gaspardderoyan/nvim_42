@@ -8,6 +8,10 @@ vim.keymap.set("i", "kj", "<Esc>", {
 	desc = "Escape",
 })
 
+vim.keymap.set("i", "kj", "<Esc>", {
+	desc = "Escape",
+})
+
 -- Hide highlights
 vim.keymap.set("n", "<Leader>h", ":noh<CR>", {
 	silent = false,
