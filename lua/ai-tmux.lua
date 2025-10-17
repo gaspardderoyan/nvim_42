@@ -194,20 +194,50 @@ function M.toggle()
 	else
 		-- Hidden or not running: show/attach
 		if #sessions > 0 then
-			-- Attach to existing session via Sidekick
-			State.attach(sessions[1], { show = true, focus = true })
+			-- Attach to existing session via Sidekick (without showing its terminal)
+			State.attach(sessions[1], { show = false, focus = false })
 			vim.notify("Attached to existing " .. M.config.tool_name .. " session", vim.log.levels.INFO)
+			
+			-- Now join the pane to current tmux window for proper layout
+			local pane_id = M.detect_opencode_pane()
+			if pane_id and not M.is_pane_here(pane_id) then
+				local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
+				current_window = current_window:gsub("%s+$", "")
+				local term_width = vim.o.columns
+				local ai_width = math.floor(term_width * M.config.split_ratio)
+				local _, code = tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
+				if code == 0 then
+					tmux_exec("select-pane -t " .. pane_id)
+				end
+			elseif pane_id then
+				-- Already in current window, just focus
+				tmux_exec("select-pane -t " .. pane_id)
+			end
 		elseif pane_id then
 			-- Running but not in current window: join from parking
 			M.show_opencode()  -- Your existing join logic
 		else
 			-- No session: create in tmux, then attach
 			M.show_opencode()  -- This now starts manually (as updated previously)
-			-- After start, attach via Sidekick (it will detect the new process)
+			-- After start, attach via Sidekick (without showing its terminal)
 			vim.defer_fn(function()
 				local new_sessions = State.get({ name = M.config.tool_name, started = true })
 				if #new_sessions > 0 then
-					State.attach(new_sessions[1], { show = true, focus = true })
+					State.attach(new_sessions[1], { show = false, focus = false })
+					-- Then join/focus the pane
+					local pane_id = M.detect_opencode_pane()
+					if pane_id and not M.is_pane_here(pane_id) then
+						local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
+						current_window = current_window:gsub("%s+$", "")
+						local term_width = vim.o.columns
+						local ai_width = math.floor(term_width * M.config.split_ratio)
+						local _, code = tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
+						if code == 0 then
+							tmux_exec("select-pane -t " .. pane_id)
+						end
+					elseif pane_id then
+						tmux_exec("select-pane -t " .. pane_id)
+					end
 				end
 			end, 1000)  -- Small delay for process to start
 		end
