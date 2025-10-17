@@ -10,10 +10,20 @@ M.config = {
 	split_ratio = 0.4,
 }
 
--- Helper: Execute tmux command and return output
-local function tmux_exec(cmd)
+M.pane_cache = {}
+
+-- Helper: Execute tmux command and return output while logging failures
+local function tmux_exec(cmd, opts)
+	opts = opts or {}
 	local output = vim.fn.system("tmux " .. cmd)
 	local exit_code = vim.v.shell_error
+	if exit_code ~= 0 and not opts.allow_fail then
+		local message = string.format("tmux %s failed with exit code %d", cmd, exit_code)
+		if output and output ~= "" then
+			message = message .. ": " .. output:gsub("%s+$", "")
+		end
+		vim.notify(message, vim.log.levels.ERROR)
+	end
 	return output, exit_code
 end
 
@@ -22,43 +32,176 @@ local function is_in_tmux()
 	return vim.env.TMUX ~= nil
 end
 
--- Helper: Ensure parking session exists with opencode in current dir
+local function shell_escape(value)
+	return vim.fn.shellescape(value or "")
+end
+
+local function trim(value)
+	return (value or ""):gsub("%s+$", "")
+end
+
+local function normalize_dir(dir)
+	if not dir or dir == "" then
+		return dir
+	end
+	local ok, resolved = pcall(vim.loop.fs_realpath, dir)
+	local path = ok and resolved or vim.fn.fnamemodify(dir, ":p")
+	if path and #path > 1 and path:sub(-1) == "/" then
+		path = path:sub(1, -2)
+	end
+	return path
+end
+
+local function get_current_dir()
+	return normalize_dir(vim.fn.getcwd())
+end
+
+local function pane_exists(pane_id)
+	if not pane_id then
+		return false
+	end
+	local _, code = tmux_exec(string.format('display-message -p -t %s "#{pane_id}"', pane_id), { allow_fail = true })
+	return code == 0
+end
+
+local function get_current_session()
+	local output, code = tmux_exec('display-message -p "#{session_name}"', { allow_fail = true })
+	if code ~= 0 then
+		return nil
+	end
+	return trim(output)
+end
+
+local PANE_FORMAT =
+	"#{pane_id}\t#{session_name}\t#{pane_start_command}\t#{pane_current_command}\t#{pane_title}\t#{pane_current_path}"
+
+local function command_matches_tool(cmd)
+	if not cmd or cmd == "" then
+		return false
+	end
+	if cmd == M.config.tool_name then
+		return true
+	end
+	local base = cmd:match("([^/]+)$")
+	return base == M.config.tool_name
+end
+
+local function parse_pane_line(line)
+	if not line or line == "" then
+		return nil
+	end
+	local fields = vim.split(line, "\t", { plain = true })
+	if #fields < 6 then
+		return nil
+	end
+	local meta = {
+		id = fields[1],
+		session = fields[2],
+		start_cmd = fields[3],
+		current_cmd = fields[4],
+		title = fields[5],
+		path = normalize_dir(fields[6]) or fields[6],
+	}
+	return meta
+end
+
+local function pane_matches_tool(meta)
+	if not meta then
+		return false
+	end
+	if command_matches_tool(meta.start_cmd) or command_matches_tool(meta.current_cmd) then
+		return true
+	end
+	return trim(meta.title) == M.config.tool_name
+end
+
+local function get_pane_window(pane_id)
+	local output, code = tmux_exec(
+		string.format('display-message -p -t %s "#{session_name}:#{window_index}"', pane_id),
+		{ allow_fail = true }
+	)
+	if code ~= 0 then
+		return nil
+	end
+	return trim(output)
+end
+
+local function get_current_window()
+	local output, code = tmux_exec('display-message -p "#{session_name}:#{window_index}"', { allow_fail = true })
+	if code ~= 0 then
+		return nil
+	end
+	return trim(output)
+end
+
+local function remember_pane(dir, pane_id, session)
+	if not dir or dir == "" or not pane_id or pane_id == "" then
+		return
+	end
+	dir = normalize_dir(dir) or dir
+	if not pane_exists(pane_id) then
+		M.pane_cache[dir] = nil
+		return
+	end
+	M.pane_cache[dir] = {
+		id = pane_id,
+		session = session,
+	}
+end
+
 local function ensure_parking_session()
 	local session = M.config.parking_session
-	local output, code = tmux_exec("has-session -t " .. session .. " 2>/dev/null")
+	local _, code = tmux_exec("has-session -t " .. session, { allow_fail = true })
 	if code ~= 0 then
-		-- Create detached session
 		tmux_exec("new-session -d -s " .. session)
 	end
 
-	-- Check if there's already an opencode pane in the session with current dir
-	local current_dir = vim.fn.getcwd()
-	local output =
-		tmux_exec(string.format('list-panes -t %s -F "#{pane_current_command} #{pane_current_path}"', session))
-	local has_matching_pane = false
+	local current_dir = get_current_dir()
+	local cached = current_dir and M.pane_cache[current_dir]
+	if cached and pane_exists(cached.id) then
+		return cached.id
+	end
+
+	local output = tmux_exec(string.format("list-panes -t %s -F %s", shell_escape(session), shell_escape(PANE_FORMAT)))
 	for line in output:gmatch("[^\r\n]+") do
-		local cmd, path = line:match("^(%S+)%s+(.+)$")
-		if cmd == M.config.tool_name and path == current_dir then
-			has_matching_pane = true
-			break
+		local meta = parse_pane_line(line)
+		if meta and pane_matches_tool(meta) and meta.path == current_dir then
+			remember_pane(current_dir, meta.id, meta.session)
+			return meta.id
 		end
 	end
-	if not has_matching_pane then
-		-- Start opencode in background in the session
-		tmux_exec(string.format("new-window -t %s -c '%s' -d '%s'", session, current_dir, M.config.tool_name))
+
+	local create_cmd = string.format(
+		"new-window -P -d -F %s -t %s -c %s %s",
+		shell_escape("#{pane_id}"),
+		shell_escape(session),
+		shell_escape(current_dir),
+		shell_escape(M.config.tool_name)
+	)
+	local pane_id, new_code = tmux_exec(create_cmd)
+	if new_code == 0 then
+		remember_pane(current_dir, trim(pane_id), session)
+		return trim(pane_id)
 	end
 end
 
 -- Find opencode pane by process name and current directory
 function M.detect_opencode_pane()
-	local output = tmux_exec(
-		'list-panes -a -F "#{session_name}:#{window_index}.#{pane_index} #{pane_current_command} #{pane_current_path}"'
-	)
+	local current_dir = get_current_dir()
+	local cached = current_dir and M.pane_cache[current_dir]
+	if cached and pane_exists(cached.id) then
+		return cached.id
+	end
+	if current_dir then
+		M.pane_cache[current_dir] = nil
+	end
 
+	local output = tmux_exec(string.format("list-panes -a -F %s", shell_escape(PANE_FORMAT)))
 	for line in output:gmatch("[^\r\n]+") do
-		local pane_id, cmd, path = line:match("^(%S+)%s+(%S+)%s+(.+)$")
-		if cmd == M.config.tool_name and path == vim.fn.getcwd() then
-			return pane_id
+		local meta = parse_pane_line(line)
+		if meta and pane_matches_tool(meta) and meta.path == current_dir then
+			remember_pane(current_dir, meta.id, meta.session)
+			return meta.id
 		end
 	end
 
@@ -67,17 +210,15 @@ end
 
 -- Find suitable parking pane in ai-tools session with same directory
 function M.find_suitable_parking_pane()
-	local current_dir = vim.fn.getcwd()
+	local current_dir = get_current_dir()
 	local output = tmux_exec(
-		string.format(
-			'list-panes -t %s -F "#{window_index}.#{pane_index} #{pane_current_command} #{pane_current_path}"',
-			M.config.parking_session
-		)
+		string.format("list-panes -t %s -F %s", shell_escape(M.config.parking_session), shell_escape(PANE_FORMAT))
 	)
 	for line in output:gmatch("[^\r\n]+") do
-		local pane_id, cmd, path = line:match("^(%S+)%s+(%S+)%s+(.+)$")
-		if cmd == M.config.tool_name and path == current_dir then
-			return M.config.parking_session .. ":" .. pane_id
+		local meta = parse_pane_line(line)
+		if meta and pane_matches_tool(meta) and meta.path == current_dir then
+			remember_pane(current_dir, meta.id, meta.session)
+			return meta.id
 		end
 	end
 	return nil
@@ -85,18 +226,76 @@ end
 
 -- Check if pane is in current window
 function M.is_pane_here(pane_id)
-	if not pane_id then
+	if not pane_exists(pane_id) then
 		return false
 	end
 
-	-- Get current window coordinates
-	local current = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
-	current = current:gsub("%s+$", "") -- trim whitespace
+	local current = get_current_window()
+	if not current then
+		return false
+	end
 
-	-- Extract session:window from pane_id (format: session:window.pane)
-	local pane_window = pane_id:match("^([^.]+)")
+	local pane_window = get_pane_window(pane_id)
 
-	return current == pane_window
+	return pane_window == current
+end
+
+local function join_pane_into_current(pane_id)
+	if not pane_exists(pane_id) then
+		return false
+	end
+
+	local current_window = get_current_window()
+	if not current_window then
+		return false
+	end
+
+	local term_width = vim.o.columns
+	local ai_width = math.floor(term_width * M.config.split_ratio)
+	local _, code = tmux_exec(
+		string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window),
+		{ allow_fail = true }
+	)
+	if code == 0 then
+		tmux_exec("select-pane -t " .. pane_id)
+		return true
+	end
+
+	return false
+end
+
+local function focus_first_nvim_pane()
+	local nvim_panes = tmux_exec('list-panes -F "#{pane_id} #{pane_current_command}"')
+	for line in nvim_panes:gmatch("[^\r\n]+") do
+		if line:match("nvim") then
+			local pane_id = line:match("^(%S+)")
+			if pane_id then
+				tmux_exec("select-pane -t " .. pane_id)
+				break
+			end
+		end
+	end
+end
+
+local function start_tool_in_split(dir)
+	local term_width = vim.o.columns
+	local ai_width = math.floor(term_width * M.config.split_ratio)
+	local cmd = string.format(
+		"split-window -h -l %d -P -F %s -c %s %s",
+		ai_width,
+		shell_escape("#{pane_id}"),
+		shell_escape(dir),
+		shell_escape(M.config.tool_name)
+	)
+	local pane_id, code = tmux_exec(cmd)
+	if code == 0 then
+		remember_pane(dir, trim(pane_id), get_current_session())
+		vim.notify("Started " .. M.config.tool_name .. " in tmux pane", vim.log.levels.INFO)
+		return true
+	end
+
+	vim.notify("Failed to start " .. M.config.tool_name, vim.log.levels.ERROR)
+	return false
 end
 
 -- Show opencode pane
@@ -106,73 +305,43 @@ function M.show_opencode()
 		return
 	end
 
+	local dir = get_current_dir()
 	local pane_id = M.detect_opencode_pane()
 
 	if pane_id then
-		-- Opencode is running somewhere
 		if M.is_pane_here(pane_id) then
-			-- Already visible, just focus it
 			tmux_exec("select-pane -t " .. pane_id)
-		else
-			-- In parking session, join it to current window
-			local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
-			current_window = current_window:gsub("%s+$", "")
-
-			-- Calculate split width
-			local term_width = vim.o.columns
-			local ai_width = math.floor(term_width * M.config.split_ratio)
-
-			-- Join pane from parking session as horizontal split on the right
-			local _, code =
-				tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
-
-			if code == 0 then
-				-- Focus the newly joined pane
-				tmux_exec("select-pane -t " .. pane_id)
-			else
-				vim.notify("Failed to join pane", vim.log.levels.ERROR)
-			end
+			return
 		end
-	else
-		-- Ensure parking session has opencode in current dir
-		ensure_parking_session()
-		local parking_pane = M.find_suitable_parking_pane()
-		if parking_pane then
-			-- Attach via Sidekick and join the pane
-			local State = require("sidekick.cli.state")
-			local sessions = State.get({ name = M.config.tool_name, started = true })
-			if #sessions > 0 then
-				State.attach(sessions[1], { show = false, focus = false })
-				-- Join the pane to current window
-				local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
-				current_window = current_window:gsub("%s+$", "")
-				local term_width = vim.o.columns
-				local ai_width = math.floor(term_width * M.config.split_ratio)
-				local _, code =
-					tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, parking_pane, current_window))
-				if code == 0 then
-					tmux_exec("select-pane -t " .. parking_pane)
-				else
-					vim.notify("Failed to join pane", vim.log.levels.ERROR)
-				end
-			else
-				vim.notify("No session found", vim.log.levels.ERROR)
+		if join_pane_into_current(pane_id) then
+			remember_pane(dir, pane_id, get_current_session())
+			return
+		end
+		M.pane_cache[dir] = nil
+	end
+
+	ensure_parking_session()
+	local parking_pane = M.find_suitable_parking_pane()
+	if parking_pane then
+		local pane_to_join = parking_pane
+		local State = require("sidekick.cli.state")
+		local sessions = State.get({ name = M.config.tool_name, started = true })
+		if #sessions > 0 then
+			State.attach(sessions[1], { show = false, focus = false })
+			local refreshed = M.detect_opencode_pane()
+			if refreshed and pane_exists(refreshed) then
+				pane_to_join = refreshed
 			end
 		else
-			-- Start manually in tmux
-			vim.notify("Starting " .. M.config.tool_name .. "...", vim.log.levels.INFO)
-			local term_width = vim.o.columns
-			local ai_width = math.floor(term_width * M.config.split_ratio)
-			local cmd =
-				string.format("split-window -h -l %d -c '#{pane_current_path}' '%s'", ai_width, M.config.tool_name)
-			local _, code = tmux_exec(cmd)
-			if code == 0 then
-				vim.notify("Started " .. M.config.tool_name .. " in tmux pane", vim.log.levels.INFO)
-			else
-				vim.notify("Failed to start " .. M.config.tool_name, vim.log.levels.ERROR)
-			end
+			vim.notify("No session found", vim.log.levels.ERROR)
+		end
+		if join_pane_into_current(pane_to_join) then
+			remember_pane(dir, pane_to_join, get_current_session())
+			return
 		end
 	end
+
+	start_tool_in_split(dir)
 end
 
 -- Hide opencode pane
@@ -182,6 +351,7 @@ function M.hide_opencode()
 		return
 	end
 
+	local dir = get_current_dir()
 	local pane_id = M.detect_opencode_pane()
 
 	if not pane_id then
@@ -194,22 +364,11 @@ function M.hide_opencode()
 		return
 	end
 
-	-- Ensure parking session exists
 	ensure_parking_session()
-
-	-- Break pane to parking session
 	local _, code = tmux_exec(string.format("break-pane -d -s %s -t %s:", pane_id, M.config.parking_session))
-
 	if code == 0 then
-		-- Focus back to nvim pane
-		local nvim_panes = tmux_exec('list-panes -F "#{pane_id} #{pane_current_command}"')
-		for line in nvim_panes:gmatch("[^\r\n]+") do
-			if line:match("nvim") then
-				local nvim_pane = line:match("^(%S+)")
-				tmux_exec("select-pane -t " .. nvim_pane)
-				break
-			end
-		end
+		remember_pane(dir, pane_id, M.config.parking_session)
+		focus_first_nvim_pane()
 	else
 		vim.notify("Failed to hide " .. M.config.tool_name, vim.log.levels.ERROR)
 	end
@@ -222,49 +381,41 @@ function M.toggle()
 		return
 	end
 
-	local State = require("sidekick.cli.state")
 	local pane_id = M.detect_opencode_pane()
-
-	-- Check for existing session with filters (running, external/tmux)
-	local sessions = State.get({
-		name = M.config.tool_name,
-		started = true,
-		external = true, -- Prioritize tmux/background sessions
-	})
-
 	if pane_id and M.is_pane_here(pane_id) then
-		-- Visible: hide to parking session
 		M.hide_opencode()
-	else
-		-- Ensure parking session and check for suitable pane
-		ensure_parking_session()
-		local parking_pane = M.find_suitable_parking_pane()
-		if parking_pane then
-			-- Attach via Sidekick and join
-			local sessions = State.get({ name = M.config.tool_name, started = true })
-			if #sessions > 0 then
-				State.attach(sessions[1], { show = false, focus = false })
-				local pane_id = M.detect_opencode_pane()
-				if pane_id and not M.is_pane_here(pane_id) then
-					local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
-					current_window = current_window:gsub("%s+$", "")
-					local term_width = vim.o.columns
-					local ai_width = math.floor(term_width * M.config.split_ratio)
-					local _, code =
-						tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
-					if code == 0 then
-						tmux_exec("select-pane -t " .. pane_id)
-					end
-				elseif pane_id then
-					tmux_exec("select-pane -t " .. pane_id)
-				end
-			else
-				M.show_opencode()
+		return
+	end
+
+	ensure_parking_session()
+	local parking_pane = M.find_suitable_parking_pane()
+	if parking_pane then
+		local pane_to_join = parking_pane
+		local State = require("sidekick.cli.state")
+		local sessions = State.get({
+			name = M.config.tool_name,
+			started = true,
+			external = true,
+		})
+		if #sessions > 0 then
+			State.attach(sessions[1], { show = false, focus = false })
+			local refreshed = M.detect_opencode_pane()
+			if refreshed and pane_exists(refreshed) then
+				pane_to_join = refreshed
+			end
+		end
+		if not M.is_pane_here(pane_to_join) then
+			if join_pane_into_current(pane_to_join) then
+				remember_pane(get_current_dir(), pane_to_join, get_current_session())
+				return
 			end
 		else
-			M.show_opencode()
+			tmux_exec("select-pane -t " .. pane_to_join)
+			return
 		end
 	end
+
+	M.show_opencode()
 end
 
 return M
