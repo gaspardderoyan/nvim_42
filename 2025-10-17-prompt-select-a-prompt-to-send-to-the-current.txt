@@ -1,0 +1,220 @@
+
+ ▐▛███▜▌   Claude Code v2.0.14
+▝▜█████▛▘  Sonnet 4.5 · Claude Pro
+  ▘▘ ▝▝    /Users/gaspardderoyan/.config/nvim
+
+> - `prompt`: Select a prompt to send to the current CLI 
+:Sidekick cli select Start or attach to a CLI tool>lua
+    ---@param opts? sidekick.cli.Select|{cb:nil}|{focus?:boolean}
+    ---@overload fun(cb:fun(state?:sidekick.cli.State))
+    require("sidekick.cli").select(opts)
+
+@agent-tech-docs-researcher how to actually use this command to select a CLI tool? 
+
+⏺ I'll research the documentation for the Sidekick CLI select functionality to understand how to use this command properly.
+
+⏺ tech-docs-researcher(Research Sidekick CLI select usage)
+  ⎿  Done (20 tool uses · 37.7k tokens · 3m 29s)                                                                                                    
+
+⏺ Based on the research, here's how to use the sidekick.cli.select() command:
+
+  Basic Usage
+
+  Simple selection (what you already have):
+  require("sidekick.cli").select()
+  This opens a picker UI to choose from all configured CLI tools.
+
+  Type Definitions
+
+  ---@class sidekick.cli.Select
+  ---@field cb? fun(state?:sidekick.cli.State)  -- Callback after selection
+  ---@field focus? boolean                       -- Focus terminal after selection
+  ---@field filter? table                        -- Filter criteria (e.g., {installed=true})
+  ---@field auto? boolean                        -- Auto-select if only one match
+
+  Usage Examples
+
+  With callback (direct function):
+  require("sidekick.cli").select(function(state)
+    if state then
+      print("Selected: " .. state.tool.name)
+    end
+  end)
+
+  With options:
+  -- Only show installed tools
+  require("sidekick.cli").select({
+    filter = { installed = true },
+    focus = true  -- Focus terminal after selection
+  })
+
+  With callback and options:
+  require("sidekick.cli").select({
+    filter = { installed = true },
+    auto = true,  -- Auto-select if only one match
+    cb = function(state)
+      if state and state.installed then
+        vim.notify("Starting " .. state.tool.name)
+      end
+    end
+  })
+
+  State Object
+
+  The callback receives a state object with:
+  - state.tool - The selected CLI tool
+  - state.installed - Whether tool is installed
+  - state.attached - Whether tool is attached
+  - state.session - Active session (if any)
+  - state.terminal - Associated terminal
+
+  Your Current Keybinding
+
+  From lua/plugins/copilot.lua:102:
+  { "<leader>as", function() require("sidekick.cli").select() end, desc = "Select CLI" }
+
+  This opens the picker for all CLI tools (including your configured claude tool).
+
+> can you find me detailed information about the arguments that it accepts, so that I could programatically connect it to a cli i have running 
+@agent-tech-docs-researcher 
+
+⏺ tech-docs-researcher(Deep dive into sidekick CLI arguments)
+  ⎿  Did 1 search in 13s                                                                                                                                 
+     Did 1 search in 14s                                                                                                                                 
+     +7 more tool uses
+  ⎿  Interrupted · What should Claude do instead?
+
+> continue 
+
+⏺ tech-docs-researcher(Deep dive into sidekick CLI arguments)
+  ⎿  Done (34 tool uses · 39.5k tokens · 5m 39s)                                                                                                    
+
+⏺ Perfect! Here's the comprehensive documentation for programmatically connecting to a CLI:
+
+  Complete Argument Specification
+
+  sidekick.cli.select() Arguments
+
+  ---@class sidekick.cli.Select
+  ---@field cb? fun(state?:sidekick.cli.State)  -- Callback after selection
+  ---@field focus? boolean                      -- Focus terminal after selection
+  ---@field filter? sidekick.cli.Filter        -- Filter criteria
+
+  Filter Options (ALL available criteria)
+
+  ---@class sidekick.cli.Filter
+  ---@field attached? boolean     -- Is tool attached to session
+  ---@field cwd? boolean          -- Filter by current working directory
+  ---@field external? boolean     -- Is session external (tmux/etc)
+  ---@field installed? boolean    -- Is tool installed on system
+  ---@field name? string          -- Tool name (e.g., "claude")
+  ---@field session? string       -- Session ID
+  ---@field started? boolean      -- Is tool process running
+  ---@field terminal? boolean     -- Has terminal window
+
+  State Object (returned in callbacks)
+
+  ---@class sidekick.cli.State
+  ---@field tool sidekick.cli.Tool
+  ---@field attached? boolean
+  ---@field external? boolean
+  ---@field installed? boolean
+  ---@field session? sidekick.cli.Session
+  ---@field started? boolean
+  ---@field terminal? sidekick.cli.Terminal
+
+  Programmatic Connection Methods
+
+  Method 1: Direct connection by name (What you're already using!)
+
+  -- Best for programmatic use - no UI picker
+  require("sidekick.cli").toggle({
+    name = "claude",
+    focus = true
+  })
+
+  Method 2: Select with filters (no UI if only one match)
+
+  -- Connect to specific running tool
+  require("sidekick.cli").select({
+    filter = {
+      name = "claude",
+      started = true,
+      attached = false
+    },
+    focus = true,
+    cb = function(state)
+      if state then
+        print("Connected to " .. state.tool.name)
+      end
+    end
+  })
+
+  Method 3: Check status before connecting
+
+  function connect_to_claude()
+    require("sidekick.cli").select({
+      filter = { name = "claude" }
+    }, function(state)
+      if not state then
+        print("Claude not found")
+      elseif not state.installed then
+        print("Claude not installed")
+      elseif not state.started then
+        print("Starting Claude...")
+        require("sidekick.cli").toggle({ name = "claude" })
+      else
+        print("Connected to Claude!")
+        require("sidekick.cli").show({ name = "claude", focus = true })
+      end
+    end)
+  end
+
+  All CLI Functions
+
+  | Function     | Purpose                                      |
+  |--------------|----------------------------------------------|
+  | select(opts) | Open picker or use callback to select tool   |
+  | toggle(opts) | Toggle terminal visibility (start if needed) |
+  | show(opts)   | Always show terminal (never hide)            |
+  | hide(opts)   | Hide terminal without closing session        |
+  | close(opts)  | Close and detach session completely          |
+  | focus(opts)  | Toggle focus between editor and terminal     |
+  | send(opts)   | Send content/context to CLI                  |
+  | prompt(opts) | Select predefined prompt to send             |
+
+  Practical Examples
+
+  Connect to specific CLI silently:
+  require("sidekick.cli").show({ name = "claude", focus = false })
+
+  Send to CLI without opening:
+  require("sidekick.cli").send({
+    name = "claude",
+    msg = "{selection}",
+    submit = true,
+    focus = false
+  })
+
+  List only running CLIs:
+  require("sidekick.cli").select({
+    filter = { started = true }
+  })
+
+  Auto-connect if only one installed:
+  require("sidekick.cli").select({
+    filter = { installed = true },
+    focus = true
+  })
+  -- Opens picker only if multiple tools installed
+
+  Your current setup at lua/plugins/copilot.lua:102 already uses the best approach for programmatic connection:
+
+  { "<leader>aC", function()
+    require("sidekick.cli").toggle({ name = "claude", focus = true })
+  end }
+
+  This handles all cases: starting, attaching, focusing, and toggling!
+
+
+

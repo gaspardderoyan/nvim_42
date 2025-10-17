@@ -26,6 +26,7 @@ return {
 					},
 					tools = {
 						claude = { cmd = { "claude" } },
+						opencode = { cmd = { "opencode" } },
 					},
 				},
 				copilot = {
@@ -78,6 +79,11 @@ return {
 				function() require("sidekick.cli").prompt() end,
 				mode = { "n", "x" },
 				desc = "Sidekick Select Prompt",
+			},
+			{
+				"<leader>aa",
+				function() require("ai-tmux").toggle() end,
+				desc = "Toggle AI Tmux (OpenCode)",
 			},
 			{
 				"<leader>aC",
