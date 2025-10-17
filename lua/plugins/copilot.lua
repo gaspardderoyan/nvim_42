@@ -10,8 +10,8 @@ return {
 				},
 				cli = {
 					mux = {
-						enabled = true,
-						backend = "zellij",
+						enabled = false,
+						backend = "tmux",
 						create = "terminal", -- or "window" for tmux tabs
 						focus = true,
 						split = {

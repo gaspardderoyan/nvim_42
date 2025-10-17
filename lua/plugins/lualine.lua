@@ -1,16 +1,17 @@
 return {
 	"nvim-lualine/lualine.nvim",
 	opts = function(_, opts)
-		local auto = require("lualine.themes.auto")
+		-- Use rose-pine theme directly instead of auto
+		local rose_pine_theme = require("lualine.themes.rose-pine")
 
-		local colors = require("catppuccin.palettes").get_palette("mocha")
+		local colors = require("rose-pine.palette")
 
 		local function separator()
 			return {
 				function()
 					return "│"
 				end,
-				color = { fg = colors.surface0, bg = "NONE", gui = "bold" },
+				color = { fg = colors.overlay, bg = "NONE", gui = "bold" },
 				padding = { left = 0, right = 0 },
 			}
 		end
@@ -28,13 +29,21 @@ return {
 
 		local modes = { "normal", "insert", "visual", "replace", "command", "inactive", "terminal" }
 		for _, mode in ipairs(modes) do
-			if auto[mode] and auto[mode].c then
-				auto[mode].c.bg = "NONE"
+			if rose_pine_theme[mode] then
+				if rose_pine_theme[mode].a then
+					rose_pine_theme[mode].a.bg = "NONE"
+				end
+				if rose_pine_theme[mode].b then
+					rose_pine_theme[mode].b.bg = "NONE"
+				end
+				if rose_pine_theme[mode].c then
+					rose_pine_theme[mode].c.bg = "NONE"
+				end
 			end
 		end
 
 		opts.options = vim.tbl_deep_extend("force", opts.options or {}, {
-			theme = auto,
+			theme = rose_pine_theme,
 			component_separators = "",
 			section_separators = "",
 			globalstatus = true,
@@ -54,16 +63,16 @@ return {
 			lualine_b = {
 				{
 					custom_branch,
-					color = { fg = colors.green, bg = "none" },
+					color = { fg = colors.foam, bg = "none" },
 					padding = { left = 1, right = 1 },
 				},
 				{
 					"diff",
 					colored = true,
 					diff_color = {
-						added = { fg = colors.teal, bg = "none", gui = "bold" },
-						modified = { fg = colors.yellow, bg = "none", gui = "bold" },
-						removed = { fg = colors.red, bg = "none", gui = "bold" },
+						added = { fg = colors.foam, bg = "none", gui = "bold" },
+						modified = { fg = colors.gold, bg = "none", gui = "bold" },
+						removed = { fg = colors.love, bg = "none", gui = "bold" },
 					},
 					source = nil,
 					padding = { left = 0, right = 1 },
@@ -82,7 +91,7 @@ return {
 						unnamed = "[?]",
 						newfile = "[!]",
 					},
-					color = { fg = colors.blue, bg = "none" },
+					color = { fg = colors.iris, bg = "none" },
 					padding = { left = 1, right = 1 },
 				},
 				{
@@ -92,19 +101,19 @@ return {
 					diagnostics_color = {
 						error = function()
 							local count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-							return { fg = (count == 0) and colors.green or colors.red, bg = "none", gui = "bold" }
+							return { fg = (count == 0) and colors.foam or colors.love, bg = "none", gui = "bold" }
 						end,
 						warn = function()
 							local count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
-							return { fg = (count == 0) and colors.green or colors.yellow, bg = "none", gui = "bold" }
+							return { fg = (count == 0) and colors.foam or colors.gold, bg = "none", gui = "bold" }
 						end,
 						info = function()
 							local count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.INFO })
-							return { fg = (count == 0) and colors.green or colors.blue, bg = "none", gui = "bold" }
+							return { fg = (count == 0) and colors.foam or colors.iris, bg = "none", gui = "bold" }
 						end,
 						hint = function()
 							local count = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
-							return { fg = (count == 0) and colors.green or colors.teal, bg = "none", gui = "bold" }
+							return { fg = (count == 0) and colors.foam or colors.pine, bg = "none", gui = "bold" }
 						end,
 					},
 					symbols = {
@@ -136,7 +145,7 @@ return {
 
 						return string.format(" %d/%d", current_index, total)
 					end,
-					color = { fg = colors.yellow, bg = "none" },
+					color = { fg = colors.gold, bg = "none" },
 					padding = { left = 1, right = 1 },
 				},
 			},
@@ -146,7 +155,7 @@ return {
 					"filetype",
 					icon_only = true,
 					colored = false,
-					color = { fg = colors.blue, bg = "none" },
+					color = { fg = colors.iris, bg = "none" },
 					padding = { left = 1, right = 1 },
 				},
 			},
@@ -154,7 +163,7 @@ return {
 				separator(),
 				{
 					"location",
-					color = { fg = colors.red, bg = "none" },
+					color = { fg = colors.love, bg = "none" },
 					padding = { left = 1, right = 1 },
 				},
 			},
