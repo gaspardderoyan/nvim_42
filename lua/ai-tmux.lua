@@ -22,7 +22,7 @@ local function is_in_tmux()
 	return vim.env.TMUX ~= nil
 end
 
--- Helper: Ensure parking session exists
+-- Helper: Ensure parking session exists with opencode in current dir
 local function ensure_parking_session()
 	local session = M.config.parking_session
 	local output, code = tmux_exec("has-session -t " .. session .. " 2>/dev/null")
@@ -30,19 +30,56 @@ local function ensure_parking_session()
 		-- Create detached session
 		tmux_exec("new-session -d -s " .. session)
 	end
+
+	-- Check if there's already an opencode pane in the session with current dir
+	local current_dir = vim.fn.getcwd()
+	local output =
+		tmux_exec(string.format('list-panes -t %s -F "#{pane_current_command} #{pane_current_path}"', session))
+	local has_matching_pane = false
+	for line in output:gmatch("[^\r\n]+") do
+		local cmd, path = line:match("^(%S+)%s+(.+)$")
+		if cmd == M.config.tool_name and path == current_dir then
+			has_matching_pane = true
+			break
+		end
+	end
+	if not has_matching_pane then
+		-- Start opencode in background in the session
+		tmux_exec(string.format("new-window -t %s -c '%s' -d '%s'", session, current_dir, M.config.tool_name))
+	end
 end
 
--- Find opencode pane by process name
+-- Find opencode pane by process name and current directory
 function M.detect_opencode_pane()
-	local output = tmux_exec('list-panes -a -F "#{session_name}:#{window_index}.#{pane_index} #{pane_current_command}"')
+	local output = tmux_exec(
+		'list-panes -a -F "#{session_name}:#{window_index}.#{pane_index} #{pane_current_command} #{pane_current_path}"'
+	)
 
 	for line in output:gmatch("[^\r\n]+") do
-		if line:match(M.config.tool_name) then
-			local pane_id = line:match("^(%S+)")
+		local pane_id, cmd, path = line:match("^(%S+)%s+(%S+)%s+(.+)$")
+		if cmd == M.config.tool_name and path == vim.fn.getcwd() then
 			return pane_id
 		end
 	end
 
+	return nil
+end
+
+-- Find suitable parking pane in ai-tools session with same directory
+function M.find_suitable_parking_pane()
+	local current_dir = vim.fn.getcwd()
+	local output = tmux_exec(
+		string.format(
+			'list-panes -t %s -F "#{window_index}.#{pane_index} #{pane_current_command} #{pane_current_path}"',
+			M.config.parking_session
+		)
+	)
+	for line in output:gmatch("[^\r\n]+") do
+		local pane_id, cmd, path = line:match("^(%S+)%s+(%S+)%s+(.+)$")
+		if cmd == M.config.tool_name and path == current_dir then
+			return M.config.parking_session .. ":" .. pane_id
+		end
+	end
 	return nil
 end
 
@@ -97,32 +134,38 @@ function M.show_opencode()
 			end
 		end
 	else
-		-- Opencode not running in tmux, try to attach to existing session via Sidekick
-		local State = require("sidekick.cli.state")
-		local sessions = State.get({
-			name = M.config.tool_name,
-			started = true,
-		})
-		vim.notify(vim.inspect(sessions), vim.log.levels.INFO)
-
-		if #sessions > 0 then
-			-- Attach to existing session
-			State.attach(sessions[1], { show = true, focus = true })
-			vim.notify("Attached to existing " .. M.config.tool_name .. " session", vim.log.levels.INFO)
+		-- Ensure parking session has opencode in current dir
+		ensure_parking_session()
+		local parking_pane = M.find_suitable_parking_pane()
+		if parking_pane then
+			-- Attach via Sidekick and join the pane
+			local State = require("sidekick.cli.state")
+			local sessions = State.get({ name = M.config.tool_name, started = true })
+			if #sessions > 0 then
+				State.attach(sessions[1], { show = false, focus = false })
+				-- Join the pane to current window
+				local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
+				current_window = current_window:gsub("%s+$", "")
+				local term_width = vim.o.columns
+				local ai_width = math.floor(term_width * M.config.split_ratio)
+				local _, code =
+					tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, parking_pane, current_window))
+				if code == 0 then
+					tmux_exec("select-pane -t " .. parking_pane)
+				else
+					vim.notify("Failed to join pane", vim.log.levels.ERROR)
+				end
+			else
+				vim.notify("No session found", vim.log.levels.ERROR)
+			end
 		else
-			-- No existing session, start manually in tmux
+			-- Start manually in tmux
 			vim.notify("Starting " .. M.config.tool_name .. "...", vim.log.levels.INFO)
-
-			-- Calculate split width
 			local term_width = vim.o.columns
 			local ai_width = math.floor(term_width * M.config.split_ratio)
-
-			-- Split window horizontally and run opencode
 			local cmd =
 				string.format("split-window -h -l %d -c '#{pane_current_path}' '%s'", ai_width, M.config.tool_name)
-
 			local _, code = tmux_exec(cmd)
-
 			if code == 0 then
 				vim.notify("Started " .. M.config.tool_name .. " in tmux pane", vim.log.levels.INFO)
 			else
@@ -193,57 +236,33 @@ function M.toggle()
 		-- Visible: hide to parking session
 		M.hide_opencode()
 	else
-		-- Hidden or not running: show/attach
-		if #sessions > 0 then
-			-- Attach to existing session via Sidekick (without showing its terminal)
-			State.attach(sessions[1], { show = false, focus = false })
-			vim.notify("Attached to existing " .. M.config.tool_name .. " session", vim.log.levels.INFO)
-
-			-- Now join the pane to current tmux window for proper layout
-			local pane_id = M.detect_opencode_pane()
-			if pane_id and not M.is_pane_here(pane_id) then
-				local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
-				current_window = current_window:gsub("%s+$", "")
-				local term_width = vim.o.columns
-				local ai_width = math.floor(term_width * M.config.split_ratio)
-				local _, code =
-					tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
-				if code == 0 then
-					tmux_exec("select-pane -t " .. pane_id)
-				end
-			elseif pane_id then
-				-- Already in current window, just focus
-				tmux_exec("select-pane -t " .. pane_id)
-			end
-		elseif pane_id then
-			-- Running but not in current window: join from parking
-			M.show_opencode() -- Your existing join logic
-		else
-			-- No session: create in tmux, then attach
-			M.show_opencode() -- This now starts manually (as updated previously)
-			-- After start, attach via Sidekick (without showing its terminal)
-			vim.defer_fn(function()
-				local new_sessions = State.get({ name = M.config.tool_name, started = true })
-				if #new_sessions > 0 then
-					State.attach(new_sessions[1], { show = false, focus = false })
-					-- Then join/focus the pane
-					local pane_id = M.detect_opencode_pane()
-					if pane_id and not M.is_pane_here(pane_id) then
-						local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
-						current_window = current_window:gsub("%s+$", "")
-						local term_width = vim.o.columns
-						local ai_width = math.floor(term_width * M.config.split_ratio)
-						local _, code = tmux_exec(
-							string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window)
-						)
-						if code == 0 then
-							tmux_exec("select-pane -t " .. pane_id)
-						end
-					elseif pane_id then
+		-- Ensure parking session and check for suitable pane
+		ensure_parking_session()
+		local parking_pane = M.find_suitable_parking_pane()
+		if parking_pane then
+			-- Attach via Sidekick and join
+			local sessions = State.get({ name = M.config.tool_name, started = true })
+			if #sessions > 0 then
+				State.attach(sessions[1], { show = false, focus = false })
+				local pane_id = M.detect_opencode_pane()
+				if pane_id and not M.is_pane_here(pane_id) then
+					local current_window = tmux_exec('display-message -p "#{session_name}:#{window_index}"')
+					current_window = current_window:gsub("%s+$", "")
+					local term_width = vim.o.columns
+					local ai_width = math.floor(term_width * M.config.split_ratio)
+					local _, code =
+						tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
+					if code == 0 then
 						tmux_exec("select-pane -t " .. pane_id)
 					end
+				elseif pane_id then
+					tmux_exec("select-pane -t " .. pane_id)
 				end
-			end, 1000) -- Small delay for process to start
+			else
+				M.show_opencode()
+			end
+		else
+			M.show_opencode()
 		end
 	end
 end
