@@ -5,7 +5,7 @@ return {
 			local split_ratio = 0.4
 			return {
 				nes = {
-					enabled = true,
+					enabled = false,
 					debounce = 100,
 				},
 				cli = {
@@ -34,7 +34,7 @@ return {
 						level = vim.log.levels.WARN,
 					},
 				},
-				debug = true,
+				debug = false,
 			}
 		end,
 		-- stylua: ignore
@@ -51,8 +51,9 @@ return {
 				desc = "Sidekick: Jump/Apply Next Edit Suggestion",
 			},
 			{
-				"<leader>aa",
+				"<c-space>",
 				function() require("sidekick.cli").toggle() end,
+				mode = { "n", "x", "i", "t" },
 				desc = "Sidekick Toggle CLI",
 			},
 			{
@@ -77,12 +78,6 @@ return {
 				function() require("sidekick.cli").prompt() end,
 				mode = { "n", "x" },
 				desc = "Sidekick Select Prompt",
-			},
-			{
-				"<c-space>",
-				function() require("sidekick.cli").focus() end,
-				mode = { "n", "x", "i", "t" },
-				desc = "Sidekick Switch Focus",
 			},
 			{
 				"<leader>aC",

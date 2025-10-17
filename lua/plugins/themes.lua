@@ -2,7 +2,7 @@ return {
 	{
 		"scottmckendry/cyberdream.nvim",
 		lazy = true,
-		priority = 1000,
+		-- priority = 1000,
 	},
 	{
 		"catppuccin/nvim",
@@ -10,24 +10,38 @@ return {
 		lazy = true,
 		-- priority = 1000,
 		-- config = function()
-		-- 	vim.cmd("colorscheme catppuccin-mocha")
+		-- 	vim.cmd("colorscheme catppuccin-macchiato")
 		-- 	vim.cmd([[
-		-- 	  hi Normal guibg=NONE ctermbg=NONE
-		-- 	  hi NormalNC guibg=NONE ctermbg=NONE
-		-- 	  hi EndOfBuffer guibg=NONE ctermbg=NONE
-		-- 	  hi VertSplit guibg=NONE ctermbg=NONE
-		-- 	  hi StatusLine guibg=NONE ctermbg=NONE
-		-- 	  hi LineNr guibg=NONE ctermbg=NONE
-		-- 	  hi SignColumn guibg=NONE ctermbg=NONE
-		-- 	]])
+		-- 		  hi Normal guibg=NONE ctermbg=NONE
+		-- 		  hi NormalNC guibg=NONE ctermbg=NONE
+		-- 		  hi EndOfBuffer guibg=NONE ctermbg=NONE
+		-- 		  hi VertSplit guibg=NONE ctermbg=NONE
+		-- 		  hi StatusLine guibg=NONE ctermbg=NONE
+		-- 		  hi LineNr guibg=NONE ctermbg=NONE
+		-- 		  hi SignColumn guibg=NONE ctermbg=NONE
+		-- 		]])
 		-- end,
 	},
 	{
 		"rose-pine/neovim",
 		name = "rose-pine",
+		lazy = false,
 		priority = 1000,
 		config = function()
-			vim.cmd("colorscheme rose-pine-moon")
+			require("rose-pine").setup({
+				variant = "moon",
+				dark_variant = "moon",
+			})
+			vim.cmd("colorscheme rose-pine")
+			vim.cmd([[
+				  hi Normal guibg=NONE ctermbg=NONE
+				  hi NormalNC guibg=NONE ctermbg=NONE
+				  hi EndOfBuffer guibg=NONE ctermbg=NONE
+				  hi VertSplit guibg=NONE ctermbg=NONE
+				  hi StatusLine guibg=NONE ctermbg=NONE
+				  hi LineNr guibg=NONE ctermbg=NONE
+				  hi SignColumn guibg=NONE ctermbg=NONE
+				]])
 		end,
 	},
 	{

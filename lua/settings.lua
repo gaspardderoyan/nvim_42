@@ -33,7 +33,7 @@ vim.opt.smartcase = true
 vim.opt.cursorline = true
 
 -- TODO: Make this depend on filetype
-vim.opt.colorcolumn = "88"
+-- vim.opt.colorcolumn = "88"
 
 -- Decrease update time
 vim.o.updatetime = 250

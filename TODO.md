@@ -6,4 +6,3 @@
 - Persisted
     - [ ] add plugin
     - [ ] make it auto load with nvs, and auto save on exit
-
