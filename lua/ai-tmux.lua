@@ -97,26 +97,36 @@ function M.show_opencode()
 			end
 		end
 	else
-		-- Opencode not running, start it manually in tmux
-		vim.notify("Starting " .. M.config.tool_name .. "...", vim.log.levels.INFO)
+		-- Opencode not running in tmux, try to attach to existing session via Sidekick
+		local State = require("sidekick.cli.state")
+		local sessions = State.get({
+			name = M.config.tool_name,
+			started = true,
+		})
 
-		-- Calculate split width
-		local term_width = vim.o.columns
-		local ai_width = math.floor(term_width * M.config.split_ratio)
-
-		-- Split window horizontally and run opencode
-		local cmd = string.format(
-			"split-window -h -l %d -c '#{pane_current_path}' '%s'",
-			ai_width,
-			M.config.tool_name
-		)
-
-		local _, code = tmux_exec(cmd)
-
-		if code == 0 then
-			vim.notify("Started " .. M.config.tool_name .. " in tmux pane", vim.log.levels.INFO)
+		if #sessions > 0 then
+			-- Attach to existing session
+			State.attach(sessions[1], { show = true, focus = true })
+			vim.notify("Attached to existing " .. M.config.tool_name .. " session", vim.log.levels.INFO)
 		else
-			vim.notify("Failed to start " .. M.config.tool_name, vim.log.levels.ERROR)
+			-- No existing session, start manually in tmux
+			vim.notify("Starting " .. M.config.tool_name .. "...", vim.log.levels.INFO)
+
+			-- Calculate split width
+			local term_width = vim.o.columns
+			local ai_width = math.floor(term_width * M.config.split_ratio)
+
+			-- Split window horizontally and run opencode
+			local cmd =
+				string.format("split-window -h -l %d -c '#{pane_current_path}' '%s'", ai_width, M.config.tool_name)
+
+			local _, code = tmux_exec(cmd)
+
+			if code == 0 then
+				vim.notify("Started " .. M.config.tool_name .. " in tmux pane", vim.log.levels.INFO)
+			else
+				vim.notify("Failed to start " .. M.config.tool_name, vim.log.levels.ERROR)
+			end
 		end
 	end
 end
@@ -164,19 +174,43 @@ end
 -- Main toggle function
 function M.toggle()
 	if not is_in_tmux() then
-		vim.notify("Not running in tmux - falling back to Sidekick toggle", vim.log.levels.WARN)
-		-- require("sidekick.cli").toggle({ name = M.config.tool_name, focus = false })
+		vim.notify("Not running in tmux", vim.log.levels.WARN)
 		return
 	end
 
+	local State = require("sidekick.cli.state")
 	local pane_id = M.detect_opencode_pane()
 
+	-- Check for existing session with filters (running, external/tmux)
+	local sessions = State.get({
+		name = M.config.tool_name,
+		started = true,
+		external = true  -- Prioritize tmux/background sessions
+	})
+
 	if pane_id and M.is_pane_here(pane_id) then
-		-- Pane is visible, hide it
+		-- Visible: hide to parking session
 		M.hide_opencode()
 	else
-		-- Pane is hidden or not running, show it
-		M.show_opencode()
+		-- Hidden or not running: show/attach
+		if #sessions > 0 then
+			-- Attach to existing session via Sidekick
+			State.attach(sessions[1], { show = true, focus = true })
+			vim.notify("Attached to existing " .. M.config.tool_name .. " session", vim.log.levels.INFO)
+		elseif pane_id then
+			-- Running but not in current window: join from parking
+			M.show_opencode()  -- Your existing join logic
+		else
+			-- No session: create in tmux, then attach
+			M.show_opencode()  -- This now starts manually (as updated previously)
+			-- After start, attach via Sidekick (it will detect the new process)
+			vim.defer_fn(function()
+				local new_sessions = State.get({ name = M.config.tool_name, started = true })
+				if #new_sessions > 0 then
+					State.attach(new_sessions[1], { show = true, focus = true })
+				end
+			end, 1000)  -- Small delay for process to start
+		end
 	end
 end
 

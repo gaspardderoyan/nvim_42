@@ -86,6 +86,23 @@ return {
 				desc = "Toggle AI Tmux (OpenCode)",
 			},
 			{
+				"<leader>aA",
+				function()
+					local State = require("sidekick.cli.state")
+					local sessions = State.get({
+						name = "opencode",
+						started = true
+					})
+					if #sessions > 0 then
+						State.attach(sessions[1], { show = true, focus = true })
+						vim.notify("Attached to existing opencode session", vim.log.levels.INFO)
+					else
+						vim.notify("No running opencode session found", vim.log.levels.WARN)
+					end
+				end,
+				desc = "Attach to Existing OpenCode Session",
+			},
+			{
 				"<leader>aC",
 				function() require("sidekick.cli").toggle({ name = "claude", focus = true }) end,
 				desc = "Sidekick Show Claude",
