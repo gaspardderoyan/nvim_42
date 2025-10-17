@@ -190,6 +190,27 @@ return {
 				},
 			})
 
+			-- Coordinate inline completions with blink.cmp menu
+			-- Hide inline completions when blink.cmp menu is open
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "BlinkCmpMenuOpen",
+				callback = function()
+					if vim.lsp.inline_completion then
+						vim.lsp.inline_completion.enable(false)
+					end
+				end,
+			})
+
+			-- Re-enable inline completions when blink.cmp menu closes
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "BlinkCmpMenuClose",
+				callback = function()
+					if vim.lsp.inline_completion then
+						vim.lsp.inline_completion.enable(true)
+					end
+				end,
+			})
+
 			-- LSP servers and clients are able to communicate to each other what features they support.
 			--  By default, Neovim doesn't support everything that is in the LSP specification.
 			--  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
@@ -355,6 +376,7 @@ return {
 			},
 			"rafamadriz/friendly-snippets",
 			"folke/lazydev.nvim",
+			"fang2hou/blink-copilot",
 		},
 		--- @module 'blink.cmp'
 		--- @type blink.cmp.Config
@@ -376,9 +398,23 @@ return {
 			},
 
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer", "lazydev" },
+				default = { "lsp", "path", "snippets", "buffer", "lazydev", "copilot" },
 				providers = {
 					lazydev = { module = "lazydev.integrations.blink", score_offset = 100 },
+					copilot = {
+						name = "copilot",
+						module = "blink-copilot",
+						score_offset = 100,
+						async = true,
+						transform_items = function(_, items)
+							-- Add custom icon for Copilot
+							for _, item in ipairs(items) do
+								item.kind_icon = ""
+								item.kind_name = "Copilot"
+							end
+							return items
+						end,
+					},
 				},
 				per_filetype = {
 					-- codecompanion = { "codecompanion" },

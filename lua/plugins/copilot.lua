@@ -94,11 +94,6 @@ return {
 				function() require("sidekick.cli").toggle({ name = "opencode", focus = true }) end,
 				desc = "Sidekick Toggle OpenCode",
 			},
-			{
-				"leader",
-				function() require("sidekick.cli").toggle({ name = "leader", focus = true }) end,
-				desc = "Sidekick Toggle Leader",
-			}
 		},
 	},
 }
