@@ -52,9 +52,8 @@ return {
 				desc = "Sidekick: Jump/Apply Next Edit Suggestion",
 			},
 			{
-				"<c-space>",
+				"<leader>aa",
 				function() require("sidekick.cli").toggle() end,
-				mode = { "n", "x", "i", "t" },
 				desc = "Sidekick Toggle CLI",
 			},
 			{
@@ -81,8 +80,9 @@ return {
 				desc = "Sidekick Select Prompt",
 			},
 			{
-				"<leader>aa",
+				"<c-space>",
 				function() require("ai-tmux").toggle() end,
+				mode = { "n", "x", "i", "t" },
 				desc = "Toggle AI Tmux (OpenCode)",
 			},
 			{
