@@ -103,6 +103,7 @@ function M.show_opencode()
 			name = M.config.tool_name,
 			started = true,
 		})
+		vim.notify(vim.inspect(sessions), vim.log.levels.INFO)
 
 		if #sessions > 0 then
 			-- Attach to existing session
@@ -185,7 +186,7 @@ function M.toggle()
 	local sessions = State.get({
 		name = M.config.tool_name,
 		started = true,
-		external = true  -- Prioritize tmux/background sessions
+		external = true, -- Prioritize tmux/background sessions
 	})
 
 	if pane_id and M.is_pane_here(pane_id) then
@@ -197,7 +198,7 @@ function M.toggle()
 			-- Attach to existing session via Sidekick (without showing its terminal)
 			State.attach(sessions[1], { show = false, focus = false })
 			vim.notify("Attached to existing " .. M.config.tool_name .. " session", vim.log.levels.INFO)
-			
+
 			-- Now join the pane to current tmux window for proper layout
 			local pane_id = M.detect_opencode_pane()
 			if pane_id and not M.is_pane_here(pane_id) then
@@ -205,7 +206,8 @@ function M.toggle()
 				current_window = current_window:gsub("%s+$", "")
 				local term_width = vim.o.columns
 				local ai_width = math.floor(term_width * M.config.split_ratio)
-				local _, code = tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
+				local _, code =
+					tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
 				if code == 0 then
 					tmux_exec("select-pane -t " .. pane_id)
 				end
@@ -215,10 +217,10 @@ function M.toggle()
 			end
 		elseif pane_id then
 			-- Running but not in current window: join from parking
-			M.show_opencode()  -- Your existing join logic
+			M.show_opencode() -- Your existing join logic
 		else
 			-- No session: create in tmux, then attach
-			M.show_opencode()  -- This now starts manually (as updated previously)
+			M.show_opencode() -- This now starts manually (as updated previously)
 			-- After start, attach via Sidekick (without showing its terminal)
 			vim.defer_fn(function()
 				local new_sessions = State.get({ name = M.config.tool_name, started = true })
@@ -231,7 +233,9 @@ function M.toggle()
 						current_window = current_window:gsub("%s+$", "")
 						local term_width = vim.o.columns
 						local ai_width = math.floor(term_width * M.config.split_ratio)
-						local _, code = tmux_exec(string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window))
+						local _, code = tmux_exec(
+							string.format("join-pane -h -l %d -s %s -t %s", ai_width, pane_id, current_window)
+						)
 						if code == 0 then
 							tmux_exec("select-pane -t " .. pane_id)
 						end
@@ -239,7 +243,7 @@ function M.toggle()
 						tmux_exec("select-pane -t " .. pane_id)
 					end
 				end
-			end, 1000)  -- Small delay for process to start
+			end, 1000) -- Small delay for process to start
 		end
 	end
 end
