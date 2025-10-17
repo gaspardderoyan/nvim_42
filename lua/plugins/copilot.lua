@@ -40,17 +40,15 @@ return {
 		-- stylua: ignore
 		keys = {
 			{
-				"<tab>",
+				"<Tab>",
 				function()
-					-- if there is a next edit, jump to it, otherwise apply it if any
 					if require("sidekick").nes_jump_or_apply() then
-						return "" -- handled
+						return
 					end
-					return "<Tab>" -- fallback to normal tab
+					return "<Tab>"
 				end,
-				expr = true,
-				mode = { "i", "n" },
-				desc = "Goto/Apply Next Edit Suggestion",
+				mode = "n",
+				desc = "Sidekick: Jump/Apply Next Edit Suggestion",
 			},
 			{
 				"<leader>aa",
@@ -60,8 +58,6 @@ return {
 			{
 				"<leader>as",
 				function() require("sidekick.cli").select() end,
-				-- Or to select only installed tools:
-				-- require("sidekick.cli").select({ filter = { installed = true } })
 				desc = "Select CLI",
 			},
 			{
@@ -88,7 +84,6 @@ return {
 				mode = { "n", "x", "i", "t" },
 				desc = "Sidekick Switch Focus",
 			},
-			-- Example of a keybinding to open Claude directly
 			{
 				"<leader>aC",
 				function() require("sidekick.cli").toggle({ name = "claude", focus = true }) end,
@@ -99,7 +94,11 @@ return {
 				function() require("sidekick.cli").toggle({ name = "opencode", focus = true }) end,
 				desc = "Sidekick Toggle OpenCode",
 			},
-
+			{
+				"leader",
+				function() require("sidekick.cli").toggle({ name = "leader", focus = true }) end,
+				desc = "Sidekick Toggle Leader",
+			}
 		},
 	},
 }

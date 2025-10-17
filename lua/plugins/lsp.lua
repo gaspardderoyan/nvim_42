@@ -1,4 +1,5 @@
 return {
+
 	-- LSP Plugins
 	-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
 	-- used for completion, annotations and signatures of Neovim apis
@@ -264,6 +265,7 @@ return {
 				"vtsls", -- TS/JS language server
 				"eslint-lsp", -- ESLint LSP
 				"prettierd", -- Prettier daemon (or "biome" if you prefer Biome)
+				"clangd",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -281,6 +283,10 @@ return {
 					end,
 				},
 			})
+
+			-- Setup Copilot LSP for inline completions with Sidekick
+			-- The copilot server is managed by Mason and enabled via lspconfig
+			-- Inline completion is already enabled in the LspAttach autocmd above
 		end,
 	},
 	{ -- Autoformat
@@ -354,40 +360,19 @@ return {
 		--- @type blink.cmp.Config
 		opts = {
 			keymap = {
-				preset = "default",
-				["<Tab>"] = {
-					"select_next",
-					function()
-						-- Sidekick NES
-						if require("sidekick").nes_jump_or_apply() then
-							return true
-						end
-					end,
-					function()
-						-- LSP Inline (Copilot)
-						local item = vim.lsp.inline_completion.get()
-						if item then
-							vim.lsp.inline_completion.accept()
-							return true
-						end
-					end,
-					"fallback",
-				},
-				["<S-Tab>"] = {
-					"select_prev",
-					"fallback",
-				},
+				preset = "super-tab",
 				["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
 			},
 
 			appearance = {
-				-- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-				-- Adjusts spacing to ensure icons are aligned
 				nerd_font_variant = "mono",
 			},
 
 			completion = {
 				documentation = { auto_show = false },
+				trigger = {
+					show_in_snippet = false,
+				},
 			},
 
 			sources = {
@@ -550,4 +535,3 @@ return {
 	-- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
 	-- you can continue same window with `<space>sr` which resumes last telescope search
 }
-
