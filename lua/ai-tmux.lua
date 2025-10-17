@@ -12,7 +12,11 @@ M.config = {
 
 M.pane_cache = {}
 
--- Helper: Execute tmux command and return output while logging failures
+--- Execute tmux command and return output while logging failures
+--- @param cmd string The tmux command to execute
+--- @param opts? table Options table with allow_fail boolean
+--- @return string output The command output
+--- @return number exit_code The exit code from the command
 local function tmux_exec(cmd, opts)
 	opts = opts or {}
 	local output = vim.fn.system("tmux " .. cmd)
@@ -27,19 +31,29 @@ local function tmux_exec(cmd, opts)
 	return output, exit_code
 end
 
--- Helper: Check if we're inside tmux
+--- Check if running inside a tmux session
+--- @return boolean True if inside tmux, false otherwise
 local function is_in_tmux()
 	return vim.env.TMUX ~= nil
 end
 
+--- Escape a value for safe shell usage
+--- @param value string The value to escape
+--- @return string The escaped value
 local function shell_escape(value)
 	return vim.fn.shellescape(value or "")
 end
 
+--- Remove trailing whitespace from a string
+--- @param value string The value to trim
+--- @return string The trimmed value
 local function trim(value)
 	return (value or ""):gsub("%s+$", "")
 end
 
+--- Normalize a directory path to its absolute form
+--- @param dir string The directory path to normalize
+--- @return string The normalized directory path
 local function normalize_dir(dir)
 	if not dir or dir == "" then
 		return dir
@@ -52,10 +66,15 @@ local function normalize_dir(dir)
 	return path
 end
 
+--- Get the current working directory
+--- @return string The current working directory
 local function get_current_dir()
 	return normalize_dir(vim.fn.getcwd())
 end
 
+--- Check if a tmux pane exists by its ID
+--- @param pane_id string The pane ID to check
+--- @return boolean True if pane exists, false otherwise
 local function pane_exists(pane_id)
 	if not pane_id then
 		return false
@@ -64,6 +83,8 @@ local function pane_exists(pane_id)
 	return code == 0
 end
 
+--- Get the current tmux session name
+--- @return string|nil The session name or nil if not in tmux
 local function get_current_session()
 	local output, code = tmux_exec('display-message -p "#{session_name}"', { allow_fail = true })
 	if code ~= 0 then
@@ -75,6 +96,9 @@ end
 local PANE_FORMAT =
 	"#{pane_id}\t#{session_name}\t#{pane_start_command}\t#{pane_current_command}\t#{pane_title}\t#{pane_current_path}"
 
+--- Check if a command matches the configured tool
+--- @param cmd string The command to check
+--- @return boolean True if command matches tool, false otherwise
 local function command_matches_tool(cmd)
 	if not cmd or cmd == "" then
 		return false
@@ -86,6 +110,9 @@ local function command_matches_tool(cmd)
 	return base == M.config.tool_name
 end
 
+--- Parse a tmux pane information line
+--- @param line string The line to parse from tmux list-panes output
+--- @return table|nil A table with pane metadata or nil if parsing fails
 local function parse_pane_line(line)
 	if not line or line == "" then
 		return nil
@@ -105,6 +132,9 @@ local function parse_pane_line(line)
 	return meta
 end
 
+--- Check if a pane metadata matches the configured tool
+--- @param meta table The pane metadata table
+--- @return boolean True if pane matches tool, false otherwise
 local function pane_matches_tool(meta)
 	if not meta then
 		return false
@@ -115,6 +145,9 @@ local function pane_matches_tool(meta)
 	return trim(meta.title) == M.config.tool_name
 end
 
+--- Get the window identifier for a given pane
+--- @param pane_id string The pane ID
+--- @return string|nil The window identifier (session:window_index) or nil
 local function get_pane_window(pane_id)
 	local output, code = tmux_exec(
 		string.format('display-message -p -t %s "#{session_name}:#{window_index}"', pane_id),
@@ -126,6 +159,8 @@ local function get_pane_window(pane_id)
 	return trim(output)
 end
 
+--- Get the current window identifier
+--- @return string|nil The window identifier (session:window_index) or nil
 local function get_current_window()
 	local output, code = tmux_exec('display-message -p "#{session_name}:#{window_index}"', { allow_fail = true })
 	if code ~= 0 then
@@ -134,6 +169,10 @@ local function get_current_window()
 	return trim(output)
 end
 
+--- Cache a pane ID for a given directory
+--- @param dir string The directory path
+--- @param pane_id string The pane ID to cache
+--- @param session string The session name
 local function remember_pane(dir, pane_id, session)
 	if not dir or dir == "" or not pane_id or pane_id == "" then
 		return
@@ -149,6 +188,8 @@ local function remember_pane(dir, pane_id, session)
 	}
 end
 
+--- Ensure the parking session exists and return a suitable pane for it
+--- @return string|nil The pane ID from parking session or nil if creation failed
 local function ensure_parking_session()
 	local session = M.config.parking_session
 	local _, code = tmux_exec("has-session -t " .. session, { allow_fail = true })
@@ -185,7 +226,8 @@ local function ensure_parking_session()
 	end
 end
 
--- Find opencode pane by process name and current directory
+--- Find opencode pane by process name and current directory
+--- @return string|nil The pane ID if found, nil otherwise
 function M.detect_opencode_pane()
 	local current_dir = get_current_dir()
 	local cached = current_dir and M.pane_cache[current_dir]
@@ -208,7 +250,8 @@ function M.detect_opencode_pane()
 	return nil
 end
 
--- Find suitable parking pane in ai-tools session with same directory
+--- Find suitable parking pane in ai-tools session with same directory
+--- @return string|nil The pane ID if found, nil otherwise
 function M.find_suitable_parking_pane()
 	local current_dir = get_current_dir()
 	local output = tmux_exec(
@@ -224,7 +267,9 @@ function M.find_suitable_parking_pane()
 	return nil
 end
 
--- Check if pane is in current window
+--- Check if pane is in the current window
+--- @param pane_id string The pane ID to check
+--- @return boolean True if pane is in current window, false otherwise
 function M.is_pane_here(pane_id)
 	if not pane_exists(pane_id) then
 		return false
@@ -240,6 +285,9 @@ function M.is_pane_here(pane_id)
 	return pane_window == current
 end
 
+--- Join a pane into the current window
+--- @param pane_id string The pane ID to join
+--- @return boolean True if successful, false otherwise
 local function join_pane_into_current(pane_id)
 	if not pane_exists(pane_id) then
 		return false
@@ -264,6 +312,7 @@ local function join_pane_into_current(pane_id)
 	return false
 end
 
+--- Focus the first nvim pane found
 local function focus_first_nvim_pane()
 	local nvim_panes = tmux_exec('list-panes -F "#{pane_id} #{pane_current_command}"')
 	for line in nvim_panes:gmatch("[^\r\n]+") do
@@ -277,6 +326,9 @@ local function focus_first_nvim_pane()
 	end
 end
 
+--- Start the tool in a horizontal split in the current window
+--- @param dir string The directory to start the tool in
+--- @return boolean True if successful, false otherwise
 local function start_tool_in_split(dir)
 	local term_width = vim.o.columns
 	local ai_width = math.floor(term_width * M.config.split_ratio)
@@ -298,7 +350,7 @@ local function start_tool_in_split(dir)
 	return false
 end
 
--- Show opencode pane
+--- Show the opencode pane, creating or restoring it as needed
 function M.show_opencode()
 	if not is_in_tmux() then
 		vim.notify("Not running in tmux", vim.log.levels.WARN)
@@ -344,7 +396,7 @@ function M.show_opencode()
 	start_tool_in_split(dir)
 end
 
--- Hide opencode pane
+--- Hide the opencode pane by moving it to the parking session
 function M.hide_opencode()
 	if not is_in_tmux() then
 		vim.notify("Not running in tmux", vim.log.levels.WARN)
@@ -374,7 +426,7 @@ function M.hide_opencode()
 	end
 end
 
--- Main toggle function
+--- Toggle the visibility of the opencode pane
 function M.toggle()
 	if not is_in_tmux() then
 		vim.notify("Not running in tmux", vim.log.levels.WARN)
