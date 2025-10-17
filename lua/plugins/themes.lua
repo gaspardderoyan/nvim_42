@@ -7,27 +7,28 @@ return {
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
-		priority = 1000,
-		config = function()
-			vim.cmd("colorscheme catppuccin-mocha")
-			vim.cmd([[
-			  hi Normal guibg=NONE ctermbg=NONE
-			  hi NormalNC guibg=NONE ctermbg=NONE
-			  hi EndOfBuffer guibg=NONE ctermbg=NONE
-			  hi VertSplit guibg=NONE ctermbg=NONE
-			  hi StatusLine guibg=NONE ctermbg=NONE
-			  hi LineNr guibg=NONE ctermbg=NONE
-			  hi SignColumn guibg=NONE ctermbg=NONE
-			]])
-		end,
+		lazy = true,
+		-- priority = 1000,
+		-- config = function()
+		-- 	vim.cmd("colorscheme catppuccin-mocha")
+		-- 	vim.cmd([[
+		-- 	  hi Normal guibg=NONE ctermbg=NONE
+		-- 	  hi NormalNC guibg=NONE ctermbg=NONE
+		-- 	  hi EndOfBuffer guibg=NONE ctermbg=NONE
+		-- 	  hi VertSplit guibg=NONE ctermbg=NONE
+		-- 	  hi StatusLine guibg=NONE ctermbg=NONE
+		-- 	  hi LineNr guibg=NONE ctermbg=NONE
+		-- 	  hi SignColumn guibg=NONE ctermbg=NONE
+		-- 	]])
+		-- end,
 	},
 	{
 		"rose-pine/neovim",
 		name = "rose-pine",
-		lazy = true,
-		-- config = function()
-		--     vim.cmd("colorscheme rose-pine-moon")
-		-- end
+		priority = 1000,
+		config = function()
+			vim.cmd("colorscheme rose-pine-moon")
+		end,
 	},
 	{
 		"Mofiqul/dracula.nvim",
