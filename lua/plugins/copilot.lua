@@ -10,7 +10,7 @@ return {
 				},
 				cli = {
 					mux = {
-						enabled = false,
+						enabled = true,
 						backend = "tmux",
 						create = "terminal", -- or "window" for tmux tabs
 						focus = true,

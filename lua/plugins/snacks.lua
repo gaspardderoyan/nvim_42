@@ -2,7 +2,6 @@ return {
 	"folke/snacks.nvim",
 	priority = 1000,
 	lazy = false,
-	---@type snacks.Config
 	opts = {
 		input = { enabled = true },
 		scratch = { enabled = true },
@@ -133,7 +132,7 @@ return {
 		{
 			"<leader>.",
 			function()
-				Snacks.scratch({ type = "markdown" })
+				Snacks.scratch({ ft = "markdown" })
 			end,
 			desc = "Toggle Scratch Buffer",
 		},
@@ -164,6 +163,13 @@ return {
 				Snacks.lazygit.log_file()
 			end,
 			desc = "Lazygit File History",
+		},
+		{
+			"<leader>H",
+			function()
+				Snacks.dashboard()
+			end,
+			desc = "Snacks Dashboard",
 		},
 	},
 }
