@@ -152,8 +152,11 @@ vim.keymap.set("x", "<leader>p", [["_dP]])
 -- Disable (nop) the 'Q' command in normal mode because it's rarely used (and can conflict with macros).
 vim.keymap.set("n", "Q", "<nop>")
 
--- OIL.NVIM --
-vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Go to Oil file explorer", silent = false })
+-- EXPLORER --
+vim.keymap.set("n", "<leader>e", function()
+	require("snacks").explorer.open()
+end, { desc = "Open Snacks Explorer", silent = false })
+vim.keymap.set("n", "<leader>E", "<CMD>Oil<CR>", { desc = "Go to Oil file explorer", silent = false })
 
 -- Define a Lua function to open help in the current window (new buffer).
 local function open_help_in_current_window(topic)
@@ -216,8 +219,8 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 -- -- Expand 'cc' into 'CodeCompanion' in the command line
 -- vim.cmd([[cab cc CodeCompanion]])
 
-vim.keymap.set("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float()<CR>", { noremap = true, silent = false })
-vim.keymap.set("n", "<leader>lt", ":lua toggle_lsp_diagnostics()<CR>", {
+vim.keymap.set("n", "<leader><leader>d", "<cmd>lua vim.diagnostic.open_float()<CR>", { noremap = true, silent = false })
+vim.keymap.set("n", "<leader><leader>t", ":lua toggle_lsp_diagnostics()<CR>", {
 	silent = false,
 	desc = "Toggle LSP diagnostics for current buffer",
 })

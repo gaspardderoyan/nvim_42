@@ -110,9 +110,17 @@ return {
 				{ section = "startup" },
 			},
 		},
-		explorer = { enabled = true },
+		explorer = { enabled = true, replace_netrw = true },
 		indent = { enabled = true },
-		picker = { enabled = true },
+		picker = {
+			enabled = true,
+			sources = {
+				---@class snacks.picker.explorer.config
+				explorer = {
+					layout = { preset = "sidebar", preview = "main", hidden = { "preview" } },
+				},
+			},
+		},
 		notifier = { enabled = true },
 		quickfile = { enabled = true },
 		scope = { enabled = true },
