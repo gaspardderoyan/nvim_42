@@ -1,43 +1,57 @@
 return {
 	-- "olimorris/codecompanion.nvim",
-	-- opts = {
-	-- 	anthropic = function()
-	-- 		return require("codecompanion.adapters").extend("gemini", {
-	-- 			env = {
-	-- 				api_key = "AIzaSyC02L5Wp-SlJYGoLUnHDrerJjXLW6a5I_w",
-	-- 			},
-	-- 		})
-	-- 	end,
-	-- 	strategies = {
-	-- 		chat = {
-	-- 			adapter = {
-	-- 				name = "gemini",
-	-- 				model = "gemini-2.5-flash",
-	-- 			},
-	-- 		},
-	-- 	},
-	-- 	display = {
-	-- 		action_palette = {
-	-- 			provider = "snacks",
-	-- 		},
-	-- 	},
-	-- 	opts = {
-	-- 		-- Set debug loggin
-	-- 		log_level = "DEBUG",
-	-- 	},
-	-- 	extensions = {
-	-- 		mcphub = {
-	-- 			callback = "mcphub.extensions.codecompanion",
-	-- 			opts = {
-	-- 				show_result_in_chat = true, -- Show mcp tool results in chat
-	-- 				make_vars = true, -- Convert resources to #variables
-	-- 				make_slash_commands = true, -- Add prompts as /slash commands
-	-- 			},
-	-- 		},
-	-- 	},
-	-- },
 	-- dependencies = {
 	-- 	"nvim-lua/plenary.nvim",
 	-- 	"nvim-treesitter/nvim-treesitter",
 	-- },
+	-- opts = {
+	-- 	strategies = {
+	-- 		chat = { enabled = false },
+	-- 		inline = {
+	-- 			adapter = "openrouter",
+	-- 			keymaps = {
+	-- 				accept_change = {
+	-- 					modes = { n = "ga" },
+	-- 					description = "Accept the suggested change",
+	-- 				},
+	-- 				reject_change = {
+	-- 					modes = { n = "gr" },
+	-- 					description = "Reject the suggested change",
+	-- 				},
+	-- 			},
+	-- 		},
+	-- 		cmd = { enabled = false },
+	-- 	},
+	--
+	-- 	adapters = {
+	-- 		http = {
+	-- 			openrouter = function()
+	-- 				return require("codecompanion.adapters").extend("openai_compatible", {
+	-- 					name = "openrouter",
+	-- 					formatted_name = "Open Router",
+	-- 					env = {
+	-- 						url = "https://openrouter.ai/api",
+	-- 						api_key = "OPENROUTER_API_KEY",
+	-- 						chat_url = "/v1/chat/completions",
+	-- 					},
+	-- 					schema = {
+	-- 						model = {
+	-- 							default = "anthropic/claude-haiku-4.5",
+	-- 						},
+	-- 					},
+	-- 				})
+	-- 			end,
+	-- 		},
+	-- 	},
+	--
+	-- 	display = {
+	-- 		action_palette = { enabled = false },
+	-- 		chat = { enabled = false },
+	-- 	},
+	-- },
+	-- config = function(_, opts)
+	-- 	require("codecompanion").setup(opts)
+	-- 	vim.keymap.set({ "n", "v" }, "<Leader>ai", "<cmd>CodeCompanionAction<cr>", { noremap = true, silent = true })
+	-- 	vim.cmd([[cab cc CodeCompanion]])
+	-- end,
 }
