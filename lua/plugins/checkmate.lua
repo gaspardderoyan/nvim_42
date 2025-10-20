@@ -5,7 +5,7 @@ return {
 		opts = {
 			files = { "*.md" }, -- any .md file (instead of defaults)
 			keys = {
-				["<leader>Tt"] = {
+				["<leader>x"] = {
 					rhs = "<cmd>Checkmate toggle<CR>",
 					desc = "Toggle todo item",
 					modes = { "n", "v" },
