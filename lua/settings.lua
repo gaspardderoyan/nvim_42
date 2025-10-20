@@ -191,3 +191,10 @@ vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]])
 vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]])
 
 vim.opt.fillchars = { eob = " " }
+
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile", "BufEnter" }, {
+	pattern = "*/todo.md",
+	callback = function()
+		vim.opt_local.cursorline = false
+	end,
+})
