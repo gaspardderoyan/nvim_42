@@ -195,6 +195,7 @@ local function ensure_parking_session()
 	local _, code = tmux_exec("has-session -t " .. session, { allow_fail = true })
 	if code ~= 0 then
 		tmux_exec("new-session -d -s " .. session)
+		tmux_exec("set-option -t " .. session .. " base-index 950")
 	end
 
 	local current_dir = get_current_dir()
