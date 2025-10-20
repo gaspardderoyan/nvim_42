@@ -51,6 +51,28 @@ return {
 					end, { buffer = true, silent = true })
 				end,
 			})
+
+			local function run_bun_file()
+				local current_file = vim.fn.expand("%:p")
+				local args = vim.fn.input("Arguments: ")
+				local cmd = string.format("bun run %s %s", current_file, args)
+				vim.cmd("FloatermNew --autoclose=0 " .. cmd)
+			end
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = { "typescript", "javascript" },
+				callback = function()
+					vim.keymap.set("n", "<F5>", function()
+						vim.cmd("w")
+						run_bun_file()
+					end, { buffer = true, silent = true })
+
+					vim.keymap.set("i", "<F5>", function()
+						vim.cmd("w")
+						run_bun_file()
+					end, { buffer = true, silent = true })
+				end,
+			})
 		end,
 	},
 }
