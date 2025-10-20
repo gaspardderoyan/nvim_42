@@ -2,7 +2,7 @@ return {
 	"olimorris/persisted.nvim",
 	lazy = false, -- Load immediately
 	opts = {
-		autoload = true, -- Enable autoload on startup
+		autoload = false, -- Enable autoload on startup
 		autostart = true, -- Automatically start session when Neovim is opened
 		use_git_branch = true, -- Per-branch sessions
 	},
