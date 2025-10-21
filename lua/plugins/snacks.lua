@@ -101,6 +101,14 @@ return {
 							require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
 						end,
 					},
+					{
+						icon = "󰆓",
+						key = "L",
+						desc = "Load Session",
+						action = function()
+							require("persisted").load()
+						end,
+					},
 				},
 			},
 			sections = {
