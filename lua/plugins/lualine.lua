@@ -42,6 +42,13 @@ return {
 			end
 		end
 
+		if not rose_pine_theme.terminal then
+			rose_pine_theme.terminal = vim.deepcopy(rose_pine_theme.normal)
+			rose_pine_theme.terminal.a.bg = "NONE"
+			rose_pine_theme.terminal.b.bg = "NONE"
+			rose_pine_theme.terminal.c.bg = "NONE"
+		end
+
 		opts.options = vim.tbl_deep_extend("force", opts.options or {}, {
 			theme = rose_pine_theme,
 			component_separators = "",
