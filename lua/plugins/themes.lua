@@ -41,6 +41,8 @@ return {
 				  hi StatusLine guibg=NONE ctermbg=NONE
 				  hi LineNr guibg=NONE ctermbg=NONE
 				  hi SignColumn guibg=NONE ctermbg=NONE
+				  hi StatusLineTerm guibg=NONE ctermbg=NONE
+				  hi StatusLineTermNC guibg=NONE ctermbg=NONE
 				]])
 		end,
 	},
